@@ -34,12 +34,88 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
+    /* Botão de som flutuante */
+    #soundBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+      background: rgba(0,0,0,0.7);
+      border: 2px solid #f5a623;
+      color: #f5a623;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      transition: background 0.2s;
+    }
+    #soundBtn:hover { background: rgba(245,166,35,0.2); }
+    #soundBtn.muted { border-color: #555; color: #555; }
   </style>
 </head>
 <body>
   <div id="gameContainer">
     <canvas id="gameCanvas"></canvas>
   </div>
+
+  <!-- Botão de som -->
+  <button id="soundBtn" title="Ligar/Desligar Música">♪</button>
+
+  <!-- Áudio da trilha sonora -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="supertom_theme.ogg" type="audio/ogg">
+    <source src="supertom_theme.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // ─── SISTEMA DE ÁUDIO ───────────────────────────────────────────
+    const bgMusic = document.getElementById('bgMusic');
+    const soundBtn = document.getElementById('soundBtn');
+    let musicStarted = false;
+    let isMuted = false;
+
+    bgMusic.volume = 0.55;
+
+    function startMusic() {
+      if (!musicStarted) {
+        bgMusic.play().then(() => {
+          musicStarted = true;
+        }).catch(() => {
+          // Autoplay bloqueado — aguarda interação
+        });
+      }
+    }
+
+    // Inicia música na primeira interação do usuário
+    ['click', 'touchstart', 'keydown'].forEach(evt => {
+      document.addEventListener(evt, startMusic, { once: false });
+    });
+
+    // Botão de mute
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isMuted = !isMuted;
+      bgMusic.muted = isMuted;
+      soundBtn.textContent = isMuted ? '✕' : '♪';
+      soundBtn.classList.toggle('muted', isMuted);
+      if (!musicStarted) startMusic();
+    });
+
+    // Expõe controle de áudio para o game.js
+    window.gameAudio = {
+      start: startMusic,
+      mute: () => { bgMusic.muted = true; isMuted = true; },
+      unmute: () => { bgMusic.muted = false; isMuted = false; },
+      setVolume: (v) => { bgMusic.volume = Math.max(0, Math.min(1, v)); },
+      isPlaying: () => musicStarted && !bgMusic.paused,
+    };
+  </script>
+
   <script src="game.js"></script>
 </body>
 </html>
