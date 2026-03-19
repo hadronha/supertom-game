@@ -503,92 +503,118 @@ class Player {
   drawSprite() {
     const hw = this.w / 2;
     const hh = this.h / 2;
+    const pulse = 0.7 + Math.sin(this.heartPulse) * 0.3;
 
-    // Sombra
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(-hw + 2, hh - 2, this.w - 4, 3);
+    // Sombra no chão
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(-hw + 2, hh - 1, this.w - 4, 3);
 
-    // Corpo - jaleco branco
-    ctx.fillStyle = '#E8E8F0';
-    ctx.fillRect(-hw + 1, -hh + 6, this.w - 2, this.h - 8);
+    // ── PERNAS
+    if (this.state === 'walk') {
+      const legSwing = Math.sin(this.animFrame * Math.PI / 2) * 4;
+      ctx.fillStyle = '#223366';
+      ctx.fillRect(-hw + 2, hh - 10, 6, 10 + legSwing);
+      ctx.fillRect(hw - 8, hh - 10, 6, 10 - legSwing);
+      // Sapatos animados
+      ctx.fillStyle = '#442211';
+      ctx.fillRect(-hw + 1, hh - 3 + legSwing, 8, 3);
+      ctx.fillRect(hw - 9, hh - 3 - legSwing, 8, 3);
+    } else if (this.state === 'jump') {
+      ctx.fillStyle = '#223366';
+      ctx.fillRect(-hw + 2, hh - 8, 6, 8);
+      ctx.fillRect(hw - 8, hh - 12, 6, 12);
+      ctx.fillStyle = '#442211';
+      ctx.fillRect(-hw + 1, hh - 3, 8, 3);
+      ctx.fillRect(hw - 9, hh - 3, 8, 3);
+    } else {
+      ctx.fillStyle = '#223366';
+      ctx.fillRect(-hw + 2, hh - 10, 6, 10);
+      ctx.fillRect(hw - 8, hh - 10, 6, 10);
+      ctx.fillStyle = '#442211';
+      ctx.fillRect(-hw + 1, hh - 3, 8, 3);
+      ctx.fillRect(hw - 9, hh - 3, 8, 3);
+    }
 
+    // ── CORPO: jaleco branco
+    ctx.fillStyle = '#D8D8EE';
+    ctx.fillRect(-hw + 1, -hh + 8, this.w - 2, this.h - 18);
+    // Lapelas
+    ctx.fillStyle = '#BBBBDD';
+    ctx.fillRect(-hw + 1, -hh + 8, 4, 10);
+    ctx.fillRect(hw - 5, -hh + 8, 4, 10);
     // Camisa azul
     ctx.fillStyle = '#1155AA';
-    ctx.fillRect(-hw + 3, -hh + 8, this.w - 6, 10);
+    ctx.fillRect(-hw + 5, -hh + 10, this.w - 10, 8);
 
     // Coração elétrico pulsante
-    const pulse = 0.8 + Math.sin(this.heartPulse) * 0.2;
-    ctx.fillStyle = C.cyan;
     ctx.globalAlpha = pulse;
-    // Coração simples
-    ctx.fillRect(-3, -hh + 10, 6, 4);
-    ctx.fillRect(-4, -hh + 9, 2, 2);
-    ctx.fillRect(2, -hh + 9, 2, 2);
-    ctx.fillRect(-2, -hh + 14, 4, 2);
-    ctx.fillRect(-1, -hh + 15, 2, 2);
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(-2, -hh + 11, 4, 3);
+    ctx.fillRect(-3, -hh + 10, 2, 2);
+    ctx.fillRect(1, -hh + 10, 2, 2);
+    ctx.fillRect(-1, -hh + 14, 2, 1);
+    // Glow do coração
+    ctx.globalAlpha = pulse * 0.3;
+    ctx.fillStyle = '#88FFFF';
+    ctx.fillRect(-5, -hh + 8, 10, 10);
     ctx.globalAlpha = 1;
 
-    // Calça
-    ctx.fillStyle = '#334477';
-    ctx.fillRect(-hw + 2, -hh + 16, this.w - 4, this.h - 20);
-
-    // Pernas animadas
+    // ── BRAÇOS
     if (this.state === 'walk') {
-      const legSwing = Math.sin(this.animFrame * Math.PI / 2) * 3;
-      ctx.fillStyle = '#223355';
-      ctx.fillRect(-hw + 2, hh - 8, 6, 8 + legSwing);
-      ctx.fillRect(hw - 8, hh - 8, 6, 8 - legSwing);
+      const armSwing = Math.sin(this.animFrame * Math.PI / 2) * 3;
+      ctx.fillStyle = '#D8D8EE';
+      ctx.fillRect(-hw - 2, -hh + 9, 4, 9 + armSwing);
+      ctx.fillRect(hw - 2, -hh + 9, 4, 9 - armSwing);
+      ctx.fillStyle = '#FFCC99';
+      ctx.fillRect(-hw - 2, -hh + 16 + armSwing, 4, 4);
+      ctx.fillRect(hw - 2, -hh + 16 - armSwing, 4, 4);
     } else if (this.state === 'jump') {
-      ctx.fillStyle = '#223355';
-      ctx.fillRect(-hw + 2, hh - 6, 6, 6);
-      ctx.fillRect(hw - 8, hh - 10, 6, 10);
+      ctx.fillStyle = '#D8D8EE';
+      ctx.fillRect(-hw - 3, -hh + 7, 4, 7);
+      ctx.fillRect(hw - 1, -hh + 7, 4, 7);
+      ctx.fillStyle = '#FFCC99';
+      ctx.fillRect(-hw - 3, -hh + 13, 4, 4);
+      ctx.fillRect(hw - 1, -hh + 13, 4, 4);
     } else {
-      ctx.fillStyle = '#223355';
-      ctx.fillRect(-hw + 2, hh - 8, 6, 8);
-      ctx.fillRect(hw - 8, hh - 8, 6, 8);
+      ctx.fillStyle = '#D8D8EE';
+      ctx.fillRect(-hw - 2, -hh + 9, 4, 8);
+      ctx.fillRect(hw - 2, -hh + 9, 4, 8);
+      ctx.fillStyle = '#FFCC99';
+      ctx.fillRect(-hw - 2, -hh + 16, 4, 4);
+      ctx.fillRect(hw - 2, -hh + 16, 4, 4);
     }
 
-    // Sapatos
-    ctx.fillStyle = '#553322';
-    ctx.fillRect(-hw + 1, hh - 3, 8, 3);
-    ctx.fillRect(hw - 9, hh - 3, 8, 3);
-
-    // Cabeça
+    // ── CABEÇA
     ctx.fillStyle = '#FFCC99';
-    ctx.fillRect(-hw + 3, -hh, this.w - 6, 8);
-
-    // Cabelo castanho
-    ctx.fillStyle = '#6B3A1F';
-    ctx.fillRect(-hw + 3, -hh, this.w - 6, 3);
-    ctx.fillRect(-hw + 3, -hh + 3, 2, 2);
-
-    // Olhos
+    ctx.fillRect(-hw + 3, -hh, this.w - 6, 9);
+    // Cabelo castanho avermelhado
+    ctx.fillStyle = '#7B3A1A';
+    ctx.fillRect(-hw + 3, -hh, this.w - 6, 4);
+    ctx.fillRect(-hw + 3, -hh + 4, 2, 3);
+    ctx.fillRect(hw - 5, -hh + 4, 2, 2);
+    // Topete
+    ctx.fillRect(-2, -hh - 2, 6, 3);
+    // Olhos azuis
     ctx.fillStyle = '#1155CC';
-    ctx.fillRect(-3, -hh + 3, 2, 2);
-    ctx.fillRect(1, -hh + 3, 2, 2);
-
+    ctx.fillRect(-4, -hh + 4, 3, 2);
+    ctx.fillRect(1, -hh + 4, 3, 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(-3, -hh + 4, 1, 1);
+    ctx.fillRect(2, -hh + 4, 1, 1);
+    // Sobrancelha
+    ctx.fillStyle = '#5A2A0A';
+    ctx.fillRect(-4, -hh + 3, 4, 1);
+    ctx.fillRect(0, -hh + 3, 4, 1);
     // Boca
-    ctx.fillStyle = '#CC6644';
-    ctx.fillRect(-2, -hh + 6, 4, 1);
-
-    // Braços
-    ctx.fillStyle = '#E8E8F0';
-    if (this.state === 'walk') {
-      const armSwing = Math.sin(this.animFrame * Math.PI / 2) * 2;
-      ctx.fillRect(-hw - 1, -hh + 8, 3, 8 + armSwing);
-      ctx.fillRect(hw - 2, -hh + 8, 3, 8 - armSwing);
-    } else if (this.state === 'jump') {
-      ctx.fillRect(-hw - 2, -hh + 6, 3, 6);
-      ctx.fillRect(hw - 1, -hh + 6, 3, 6);
-    } else {
-      ctx.fillRect(-hw - 1, -hh + 8, 3, 8);
-      ctx.fillRect(hw - 2, -hh + 8, 3, 8);
-    }
+    ctx.fillStyle = '#CC5533';
+    ctx.fillRect(-3, -hh + 7, 6, 1);
 
     // Efeito de dano
     if (this.state === 'dead') {
-      ctx.fillStyle = 'rgba(255,0,0,0.5)';
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = '#FF0000';
       ctx.fillRect(-hw, -hh, this.w, this.h);
+      ctx.globalAlpha = 1;
     }
   }
 }
@@ -638,39 +664,99 @@ class Enemy {
     const ey = Math.floor(this.y - camera.y);
 
     if (this.type === 'drone') {
-      // Drone voador
-      const bob = Math.sin(this.animTimer * 0.1) * 2;
-      ctx.fillStyle = '#442266';
-      ctx.fillRect(ex, ey + bob, this.w, this.h);
-      ctx.fillStyle = '#8800FF';
-      ctx.fillRect(ex + 2, ey + 2 + bob, this.w - 4, this.h - 4);
-      ctx.fillStyle = C.red;
-      ctx.fillRect(ex + 6, ey + 6 + bob, 4, 4);
-      // Hélices
-      ctx.fillStyle = '#AAAAAA';
-      ctx.fillRect(ex - 4, ey + 2 + bob, 4, 2);
-      ctx.fillRect(ex + this.w, ey + 2 + bob, 4, 2);
-      // Brilho
-      ctx.fillStyle = C.magenta;
-      ctx.globalAlpha = 0.4 + Math.sin(this.animTimer * 0.2) * 0.2;
-      ctx.fillRect(ex + 1, ey + 1 + bob, this.w - 2, 1);
+      // Drone voador - mais detalhado
+      const bob = Math.sin(this.animTimer * 0.12) * 3;
+      const wingFlap = Math.sin(this.animTimer * 0.3) * 2;
+
+      // Corpo principal - esfera roxa escura
+      ctx.fillStyle = '#2A0A44';
+      ctx.fillRect(ex + 2, ey + 3 + bob, this.w - 4, this.h - 6);
+      ctx.fillStyle = '#5500AA';
+      ctx.fillRect(ex + 4, ey + 5 + bob, this.w - 8, this.h - 10);
+      // Olho vermelho brilhante
+      ctx.fillStyle = '#CC0000';
+      ctx.fillRect(ex + 7, ey + 7 + bob, 6, 5);
+      ctx.fillStyle = '#FF3333';
+      ctx.fillRect(ex + 8, ey + 8 + bob, 4, 3);
+      ctx.fillStyle = '#FF8888';
+      ctx.fillRect(ex + 9, ey + 8 + bob, 2, 1);
+      // Glow do olho
+      ctx.globalAlpha = 0.4 + Math.sin(this.animTimer * 0.2) * 0.3;
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(ex + 5, ey + 5 + bob, 10, 9);
+      ctx.globalAlpha = 1;
+      // Asas (hélices)
+      ctx.fillStyle = '#888899';
+      ctx.fillRect(ex - 6, ey + 2 + bob + wingFlap, 7, 2);
+      ctx.fillRect(ex + this.w - 1, ey + 2 + bob - wingFlap, 7, 2);
+      ctx.fillStyle = '#AAAACC';
+      ctx.fillRect(ex - 5, ey + 1 + bob + wingFlap, 5, 1);
+      ctx.fillRect(ex + this.w, ey + 1 + bob - wingFlap, 5, 1);
+      // Antena
+      ctx.fillStyle = '#AA44FF';
+      ctx.fillRect(ex + 9, ey + bob, 2, 4);
+      ctx.fillRect(ex + 8, ey - 1 + bob, 4, 2);
+      // Brilho inferior
+      ctx.globalAlpha = 0.3 + Math.sin(this.animTimer * 0.15) * 0.2;
+      ctx.fillStyle = C.purple;
+      ctx.fillRect(ex + 3, ey + this.h - 4 + bob, this.w - 6, 3);
       ctx.globalAlpha = 1;
     } else {
-      // Robô pesado
-      ctx.fillStyle = '#334455';
-      ctx.fillRect(ex, ey, this.w, this.h);
-      ctx.fillStyle = '#556677';
-      ctx.fillRect(ex + 2, ey + 2, this.w - 4, this.h - 4);
-      ctx.fillStyle = C.red;
-      ctx.fillRect(ex + 6, ey + 4, 8, 6);
-      // Olhos vermelhos
-      ctx.fillStyle = '#FF0000';
-      ctx.fillRect(ex + 4, ey + 5, 3, 3);
-      ctx.fillRect(ex + 13, ey + 5, 3, 3);
+      // Robô pesado - mais imponente
+      const step = Math.sin(this.animTimer * 0.1) * 2;
+
       // Pernas
-      ctx.fillStyle = '#334455';
-      ctx.fillRect(ex + 3, ey + this.h, 5, 4);
-      ctx.fillRect(ex + 12, ey + this.h, 5, 4);
+      ctx.fillStyle = '#223344';
+      ctx.fillRect(ex + 2, ey + this.h - 6, 6, 6 + step);
+      ctx.fillRect(ex + this.w - 8, ey + this.h - 6, 6, 6 - step);
+      // Pés
+      ctx.fillStyle = '#1A2233';
+      ctx.fillRect(ex + 1, ey + this.h + step, 8, 3);
+      ctx.fillRect(ex + this.w - 9, ey + this.h - step, 8, 3);
+
+      // Corpo principal
+      ctx.fillStyle = '#1E2D3D';
+      ctx.fillRect(ex, ey + 4, this.w, this.h - 10);
+      ctx.fillStyle = '#2A3D52';
+      ctx.fillRect(ex + 2, ey + 6, this.w - 4, this.h - 14);
+      // Detalhe lateral
+      ctx.fillStyle = '#334466';
+      ctx.fillRect(ex, ey + 6, 3, this.h - 14);
+      ctx.fillRect(ex + this.w - 3, ey + 6, 3, this.h - 14);
+
+      // Cabeça
+      ctx.fillStyle = '#1E2D3D';
+      ctx.fillRect(ex + 1, ey, this.w - 2, 8);
+      ctx.fillStyle = '#2A3D52';
+      ctx.fillRect(ex + 3, ey + 1, this.w - 6, 6);
+
+      // Visor vermelho (olhos)
+      ctx.fillStyle = '#880000';
+      ctx.fillRect(ex + 3, ey + 2, this.w - 6, 4);
+      ctx.fillStyle = '#CC0000';
+      ctx.fillRect(ex + 4, ey + 2, this.w - 8, 3);
+      ctx.fillStyle = '#FF3333';
+      ctx.fillRect(ex + 4, ey + 2, 4, 2);
+      ctx.fillRect(ex + this.w - 8, ey + 2, 4, 2);
+      // Glow do visor
+      ctx.globalAlpha = 0.35 + Math.sin(this.animTimer * 0.15) * 0.2;
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(ex + 2, ey + 1, this.w - 4, 6);
+      ctx.globalAlpha = 1;
+
+      // Cruz vermelha no peito
+      ctx.fillStyle = '#CC0000';
+      ctx.fillRect(ex + 8, ey + 8, 4, 8);
+      ctx.fillRect(ex + 6, ey + 10, 8, 4);
+
+      // Braços
+      ctx.fillStyle = '#1E2D3D';
+      ctx.fillRect(ex - 4, ey + 5, 5, 10);
+      ctx.fillRect(ex + this.w - 1, ey + 5, 5, 10);
+      // Punhos
+      ctx.fillStyle = '#2A3D52';
+      ctx.fillRect(ex - 5, ey + 13, 6, 5);
+      ctx.fillRect(ex + this.w - 1, ey + 13, 6, 5);
     }
   }
 
@@ -745,69 +831,145 @@ class NPC {
   }
 
   drawVivi(x, y) {
-    // Corpo - bodysuit azul escuro
-    ctx.fillStyle = '#112244';
-    ctx.fillRect(x + 2, y + 8, this.w - 4, this.h - 10);
-    // Detalhes cyan
-    ctx.fillStyle = C.cyan;
-    ctx.fillRect(x + 4, y + 10, 2, 8);
-    ctx.fillRect(x + this.w - 6, y + 10, 2, 8);
+    const t = this.animTimer;
+    const breathe = Math.sin(t * 0.06) * 1;
+
     // Pernas
-    ctx.fillStyle = '#0A1A33';
-    ctx.fillRect(x + 3, y + this.h - 8, 5, 8);
-    ctx.fillRect(x + this.w - 8, y + this.h - 8, 5, 8);
-    // Sapatos
+    ctx.fillStyle = '#0A1428';
+    ctx.fillRect(x + 3, y + this.h - 9, 5, 9);
+    ctx.fillRect(x + this.w - 8, y + this.h - 9, 5, 9);
+    // Botas com detalhe
     ctx.fillStyle = '#001133';
     ctx.fillRect(x + 2, y + this.h - 3, 7, 3);
     ctx.fillRect(x + this.w - 9, y + this.h - 3, 7, 3);
+    ctx.fillStyle = '#0033AA';
+    ctx.fillRect(x + 2, y + this.h - 1, 7, 1);
+    ctx.fillRect(x + this.w - 9, y + this.h - 1, 7, 1);
+
+    // Bodysuit azul escuro com detalhes
+    ctx.fillStyle = '#0D1A33';
+    ctx.fillRect(x + 2, y + 8 + breathe, this.w - 4, this.h - 17);
+    // Linhas de circuito
+    ctx.fillStyle = '#0066AA';
+    ctx.fillRect(x + 4, y + 10 + breathe, 2, 7);
+    ctx.fillRect(x + this.w - 6, y + 10 + breathe, 2, 7);
+    ctx.fillRect(x + 6, y + 15 + breathe, this.w - 12, 1);
+    // Detalhe no peito
+    ctx.fillStyle = C.cyan;
+    ctx.globalAlpha = 0.7 + Math.sin(t * 0.1) * 0.3;
+    ctx.fillRect(x + 7, y + 11 + breathe, 4, 3);
+    ctx.globalAlpha = 1;
+
+    // Braços
+    ctx.fillStyle = '#0D1A33';
+    ctx.fillRect(x - 1, y + 9 + breathe, 4, 9);
+    ctx.fillRect(x + this.w - 3, y + 9 + breathe, 4, 9);
+    // Mãos
+    ctx.fillStyle = '#FFCC99';
+    ctx.fillRect(x - 1, y + 17 + breathe, 3, 3);
+    ctx.fillRect(x + this.w - 2, y + 17 + breathe, 3, 3);
+
     // Cabeça
     ctx.fillStyle = '#FFCC99';
     ctx.fillRect(x + 3, y, this.w - 6, 9);
-    // Cabelo roxo escuro
-    ctx.fillStyle = '#330066';
+    // Cabelo roxo longo
+    ctx.fillStyle = '#220044';
     ctx.fillRect(x + 3, y, this.w - 6, 3);
-    ctx.fillRect(x + 3, y + 3, 2, 4);
-    ctx.fillRect(x + this.w - 5, y + 3, 2, 4);
-    // Olhos roxos
-    ctx.fillStyle = '#9933FF';
-    ctx.fillRect(x + 5, y + 4, 2, 2);
-    ctx.fillRect(x + this.w - 7, y + 4, 2, 2);
+    ctx.fillStyle = '#330066';
+    ctx.fillRect(x + 2, y + 3, 3, 6);
+    ctx.fillRect(x + this.w - 5, y + 3, 3, 6);
+    // Mechas caindo
+    ctx.fillStyle = '#440088';
+    ctx.fillRect(x + 1, y + 5, 2, 12);
+    ctx.fillRect(x + this.w - 3, y + 5, 2, 12);
+    // Olhos roxos brilhantes
+    ctx.fillStyle = '#8833CC';
+    ctx.fillRect(x + 5, y + 4, 3, 2);
+    ctx.fillRect(x + this.w - 8, y + 4, 3, 2);
+    ctx.fillStyle = '#CC88FF';
+    ctx.fillRect(x + 5, y + 4, 1, 1);
+    ctx.fillRect(x + this.w - 8, y + 4, 1, 1);
+    // Nariz
+    ctx.fillStyle = '#CC9966';
+    ctx.fillRect(x + 8, y + 6, 1, 1);
     // Sorriso
-    ctx.fillStyle = '#CC6644';
+    ctx.fillStyle = '#CC5533';
     ctx.fillRect(x + 6, y + 7, 6, 1);
-    // Braços
-    ctx.fillStyle = '#112244';
-    ctx.fillRect(x, y + 9, 3, 10);
-    ctx.fillRect(x + this.w - 3, y + 9, 3, 10);
+    ctx.fillRect(x + 5, y + 6, 2, 1);
+    ctx.fillRect(x + 11, y + 6, 2, 1);
+
+    // Aura mágica
+    ctx.globalAlpha = 0.1 + Math.sin(t * 0.07) * 0.05;
+    ctx.fillStyle = C.purple;
+    ctx.fillRect(x - 3, y - 2, this.w + 6, this.h + 4);
+    ctx.globalAlpha = 1;
   }
 
   drawBotop(x, y) {
-    // Corpo robótico
-    ctx.fillStyle = '#DDDDEE';
-    ctx.fillRect(x + 2, y + 10, this.w - 4, this.h - 14);
-    // Cruz médica
-    ctx.fillStyle = C.red;
-    ctx.fillRect(x + 7, y + 13, 4, 8);
-    ctx.fillRect(x + 5, y + 16, 8, 3);
-    // Cabeça redonda
-    ctx.fillStyle = '#EEEEFF';
-    ctx.fillRect(x + 2, y + 1, this.w - 4, 10);
-    // Cruz na cabeça
-    ctx.fillStyle = C.red;
-    ctx.fillRect(x + 7, y + 3, 4, 6);
-    ctx.fillRect(x + 5, y + 5, 8, 2);
-    // Olhos azuis brilhantes
-    ctx.fillStyle = C.cyan;
-    ctx.fillRect(x + 4, y + 4, 3, 3);
-    ctx.fillRect(x + this.w - 7, y + 4, 3, 3);
-    // Pernas
+    const t = this.animTimer;
+    const hover = Math.sin(t * 0.08) * 1.5;
+
+    // Pernas robóticas
     ctx.fillStyle = '#AAAACC';
-    ctx.fillRect(x + 4, y + this.h - 6, 4, 6);
-    ctx.fillRect(x + this.w - 8, y + this.h - 6, 4, 6);
-    // Brilho
+    ctx.fillRect(x + 3, y + this.h - 8, 5, 8);
+    ctx.fillRect(x + this.w - 8, y + this.h - 8, 5, 8);
+    // Pés
+    ctx.fillStyle = '#8888AA';
+    ctx.fillRect(x + 2, y + this.h - 2, 7, 2);
+    ctx.fillRect(x + this.w - 9, y + this.h - 2, 7, 2);
+
+    // Corpo principal branco
+    ctx.fillStyle = '#CCCCEE';
+    ctx.fillRect(x + 1, y + 9 + hover, this.w - 2, this.h - 17);
+    ctx.fillStyle = '#DDDDFF';
+    ctx.fillRect(x + 3, y + 11 + hover, this.w - 6, this.h - 21);
+    // Cruz médica no peito
+    ctx.fillStyle = '#CC0000';
+    ctx.fillRect(x + 7, y + 12 + hover, 4, 8);
+    ctx.fillRect(x + 5, y + 15 + hover, 8, 3);
+    ctx.fillStyle = '#FF3333';
+    ctx.fillRect(x + 8, y + 13 + hover, 2, 6);
+    ctx.fillRect(x + 6, y + 16 + hover, 6, 1);
+
+    // Braços robóticos
+    ctx.fillStyle = '#AAAACC';
+    ctx.fillRect(x - 2, y + 10 + hover, 4, 8);
+    ctx.fillRect(x + this.w - 2, y + 10 + hover, 4, 8);
+    // Mãos
+    ctx.fillStyle = '#9999BB';
+    ctx.fillRect(x - 3, y + 17 + hover, 5, 4);
+    ctx.fillRect(x + this.w - 2, y + 17 + hover, 5, 4);
+
+    // Cabeça redonda
+    ctx.fillStyle = '#DDDDFF';
+    ctx.fillRect(x + 1, y + hover, this.w - 2, 10);
+    ctx.fillStyle = '#EEEEFF';
+    ctx.fillRect(x + 2, y + 1 + hover, this.w - 4, 8);
+    // Cruz na cabeça
+    ctx.fillStyle = '#CC0000';
+    ctx.fillRect(x + 7, y + 2 + hover, 4, 6);
+    ctx.fillRect(x + 5, y + 4 + hover, 8, 2);
+    // Olhos azuis brilhantes
+    ctx.fillStyle = '#0044CC';
+    ctx.fillRect(x + 3, y + 3 + hover, 4, 3);
+    ctx.fillRect(x + this.w - 7, y + 3 + hover, 4, 3);
     ctx.fillStyle = C.cyan;
-    ctx.globalAlpha = 0.3 + Math.sin(this.animTimer * 0.1) * 0.1;
-    ctx.fillRect(x + 2, y + 1, this.w - 4, 1);
+    ctx.fillRect(x + 4, y + 4 + hover, 2, 2);
+    ctx.fillRect(x + this.w - 6, y + 4 + hover, 2, 2);
+    // Brilho dos olhos
+    ctx.globalAlpha = 0.5 + Math.sin(t * 0.12) * 0.3;
+    ctx.fillStyle = '#88FFFF';
+    ctx.fillRect(x + 2, y + 2 + hover, 5, 5);
+    ctx.fillRect(x + this.w - 7, y + 2 + hover, 5, 5);
+    ctx.globalAlpha = 1;
+    // Óculos/visor
+    ctx.fillStyle = '#334466';
+    ctx.fillRect(x + 2, y + 7 + hover, this.w - 4, 2);
+
+    // Brilho geral
+    ctx.globalAlpha = 0.15 + Math.sin(t * 0.08) * 0.08;
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(x, y + hover, this.w, this.h - 8);
     ctx.globalAlpha = 1;
   }
 
@@ -865,35 +1027,55 @@ class Orion {
     if (this.collected) return;
     const ox = Math.floor(this.x - camera.x);
     const oy = Math.floor(this.y - camera.y);
-    const pulse = 0.7 + Math.sin(this.animTimer * 0.15) * 0.3;
+    const pulse = 0.6 + Math.sin(this.animTimer * 0.14) * 0.4;
+    const rot = this.animTimer * 0.05;
 
-    // Brilho externo
-    ctx.globalAlpha = pulse * 0.3;
+    // Halo externo grande
+    ctx.globalAlpha = pulse * 0.15;
     ctx.fillStyle = C.gold;
-    ctx.fillRect(ox - 4, oy - 4, this.w + 8, this.h + 8);
+    ctx.fillRect(ox - 6, oy - 6, this.w + 12, this.h + 12);
     ctx.globalAlpha = 1;
 
-    // Anel cósmico
+    // Halo médio
+    ctx.globalAlpha = pulse * 0.25;
     ctx.fillStyle = C.cyan;
-    ctx.globalAlpha = pulse * 0.6;
-    ctx.fillRect(ox - 2, oy + 5, this.w + 4, 3);
+    ctx.fillRect(ox - 3, oy - 3, this.w + 6, this.h + 6);
     ctx.globalAlpha = 1;
 
-    // Estrela dourada
+    // Anéis cósmicos orbitando
+    const r1x = Math.sin(rot) * 7;
+    const r1y = Math.cos(rot) * 3;
+    ctx.globalAlpha = 0.5 + Math.sin(this.animTimer * 0.1) * 0.3;
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(ox + 7 + r1x, oy + 7 + r1y, 2, 2);
+    ctx.fillRect(ox + 7 - r1x, oy + 7 - r1y, 2, 2);
     ctx.fillStyle = C.gold;
-    // Centro
-    ctx.fillRect(ox + 4, oy + 2, 6, 10);
-    ctx.fillRect(ox + 2, oy + 4, 10, 6);
-    // Pontas diagonais
-    ctx.fillRect(ox + 3, oy + 3, 2, 2);
-    ctx.fillRect(ox + 9, oy + 3, 2, 2);
-    ctx.fillRect(ox + 3, oy + 9, 2, 2);
-    ctx.fillRect(ox + 9, oy + 9, 2, 2);
+    ctx.fillRect(ox + 7 + r1y, oy + 7 - r1x, 2, 2);
+    ctx.fillRect(ox + 7 - r1y, oy + 7 + r1x, 2, 2);
+    ctx.globalAlpha = 1;
 
-    // Brilho central
+    // Estrela dourada de 4 pontas
+    ctx.fillStyle = '#CC9900';
+    ctx.fillRect(ox + 4, oy + 1, 6, 12);
+    ctx.fillRect(ox + 1, oy + 4, 12, 6);
+    ctx.fillStyle = C.gold;
+    ctx.fillRect(ox + 5, oy + 2, 4, 10);
+    ctx.fillRect(ox + 2, oy + 5, 10, 4);
+    // Pontas diagonais
+    ctx.fillRect(ox + 3, oy + 3, 3, 3);
+    ctx.fillRect(ox + 8, oy + 3, 3, 3);
+    ctx.fillRect(ox + 3, oy + 8, 3, 3);
+    ctx.fillRect(ox + 8, oy + 8, 3, 3);
+
+    // Núcleo brilhante
     ctx.fillStyle = '#FFFACD';
-    ctx.fillRect(ox + 6, oy + 5, 2, 4);
-    ctx.fillRect(ox + 5, oy + 6, 4, 2);
+    ctx.globalAlpha = pulse;
+    ctx.fillRect(ox + 6, oy + 4, 2, 6);
+    ctx.fillRect(ox + 4, oy + 6, 6, 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(ox + 7, oy + 6, 1, 2);
+    ctx.fillRect(ox + 6, oy + 7, 2, 1);
+    ctx.globalAlpha = 1;
   }
 }
 
@@ -1704,131 +1886,351 @@ const game = {
   },
 
   drawTitle() {
-    // Fundo estrelado
+    const t = this.titleTimer;
+
+    // ── FUNDO: gradiente cósmico profundo
     const grad = ctx.createLinearGradient(0, 0, 0, GAME_H);
-    grad.addColorStop(0, '#020010');
-    grad.addColorStop(0.6, '#0D0D2B');
+    grad.addColorStop(0, '#010008');
+    grad.addColorStop(0.35, '#060018');
+    grad.addColorStop(0.7, '#0D0D2B');
     grad.addColorStop(1, '#1A0A3D');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, GAME_W, GAME_H);
 
-    // Estrelas
+    // Nebulosa de fundo
+    ctx.globalAlpha = 0.08 + Math.sin(t * 0.02) * 0.03;
+    ctx.fillStyle = C.purple;
+    ctx.fillRect(30, 10, 160, 100);
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(280, 5, 120, 80);
+    ctx.fillStyle = C.magenta;
+    ctx.fillRect(150, 40, 100, 60);
+    ctx.globalAlpha = 1;
+
+    // Estrelas com twinkle
     for (const s of stars) {
       s.twinkle += s.speed;
-      const alpha = 0.4 + Math.sin(s.twinkle) * 0.4;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = C.star;
-      ctx.fillRect(s.x, s.y, s.size, s.size);
+      const alpha = 0.3 + Math.sin(s.twinkle) * 0.5;
+      ctx.globalAlpha = Math.max(0, alpha);
+      // Algumas estrelas são coloridas
+      const colors = [C.star, C.cyan, C.gold, '#FFAAFF'];
+      ctx.fillStyle = colors[Math.floor(s.x * 7 + s.y * 3) % 4];
+      const sz = s.size * (1 + Math.sin(s.twinkle * 0.5) * 0.3);
+      ctx.fillRect(s.x, s.y, sz, sz);
     }
     ctx.globalAlpha = 1;
 
-    // Prédios silhueta
-    drawCityBuildings(0, GAME_H - 30, 0.5);
-
-    // Título SUPERTOM
-    const t = this.titleTimer;
-    const titleY = 35 + Math.sin(t * 0.03) * 2;
-
-    // Sombra do título
-    ctx.globalAlpha = 0.5;
-    drawPixelText('SUPERTOM', GAME_W / 2 + 2, titleY + 2, 5, '#220000', 'center');
-    ctx.globalAlpha = 1;
-
-    // Gradiente laranja-dourado para o título
-    drawPixelText('SUPERTOM', GAME_W / 2, titleY, 5, C.orange, 'center');
-    // Brilho
+    // Montanhas ao fundo (silhueta)
     ctx.globalAlpha = 0.4;
-    drawPixelText('SUPERTOM', GAME_W / 2, titleY, 5, C.gold, 'center');
+    ctx.fillStyle = '#08041A';
+    const mts = [[0,80,60],[50,60,80],[110,70,50],[160,55,90],[220,65,70],[290,50,80],[360,60,60],[410,70,50],[440,55,80]];
+    for (const [mx, mh, mw] of mts) {
+      ctx.fillRect(mx, GAME_H - 50 - mh, mw, mh + 50);
+    }
     ctx.globalAlpha = 1;
 
-    // Subtítulo
-    drawPixelText('A JORNADA DO CORACAO ELETRICO', GAME_W / 2, titleY + 38, 1, C.cyan, 'center');
+    // Prédios da cidade (silhueta)
+    drawCityBuildings(-((t * 0.1) % (GAME_W + 200)), GAME_H - 28, 0.55);
+    drawCityBuildings(GAME_W - ((t * 0.1) % (GAME_W + 200)), GAME_H - 28, 0.55);
 
-    // Linha decorativa
-    ctx.fillStyle = C.cyan;
+    // Chao
     ctx.globalAlpha = 0.5;
-    ctx.fillRect(GAME_W / 2 - 100, titleY + 46, 200, 1);
+    const floorGrad = ctx.createLinearGradient(0, GAME_H - 22, 0, GAME_H);
+    floorGrad.addColorStop(0, '#0A0530');
+    floorGrad.addColorStop(1, '#050218');
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, GAME_H - 22, GAME_W, 22);
+    // Linha neon no chão
+    ctx.globalAlpha = 0.6 + Math.sin(t * 0.05) * 0.2;
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(0, GAME_H - 22, GAME_W, 1);
     ctx.globalAlpha = 1;
 
     // Personagens na tela de título
     this.drawTitleCharacters();
 
-    // "TOQUE PARA INICIAR" piscando
-    const blink = Math.floor(t / 20) % 2 === 0;
+    // ── TÍTULO SUPERTOM
+    const titleY = 22 + Math.sin(t * 0.025) * 2;
+
+    // Glow atrás do título
+    ctx.globalAlpha = 0.15 + Math.sin(t * 0.04) * 0.08;
+    ctx.fillStyle = C.orange;
+    ctx.fillRect(GAME_W / 2 - 120, titleY - 4, 240, 38);
+    ctx.globalAlpha = 1;
+
+    // Sombra do título
+    ctx.globalAlpha = 0.6;
+    drawPixelText('SUPERTOM', GAME_W / 2 + 2, titleY + 2, 5, '#330000', 'center');
+    ctx.globalAlpha = 1;
+
+    // Título principal - laranja vibrante
+    drawPixelText('SUPERTOM', GAME_W / 2, titleY, 5, C.orange, 'center');
+    // Camada dourada brilhante
+    ctx.globalAlpha = 0.5 + Math.sin(t * 0.06) * 0.2;
+    drawPixelText('SUPERTOM', GAME_W / 2, titleY, 5, C.gold, 'center');
+    ctx.globalAlpha = 1;
+
+    // Subtítulo com brilho
+    ctx.globalAlpha = 0.8 + Math.sin(t * 0.05) * 0.2;
+    drawPixelText('A JORNADA DO CORACAO ELETRICO', GAME_W / 2, titleY + 36, 1, C.cyan, 'center');
+    ctx.globalAlpha = 1;
+
+    // Linhas decorativas
+    const lineAlpha = 0.4 + Math.sin(t * 0.04) * 0.2;
+    ctx.globalAlpha = lineAlpha;
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(GAME_W / 2 - 110, titleY + 44, 90, 1);
+    ctx.fillRect(GAME_W / 2 + 20, titleY + 44, 90, 1);
+    // Losango central
+    ctx.fillRect(GAME_W / 2 - 4, titleY + 42, 8, 1);
+    ctx.fillRect(GAME_W / 2 - 2, titleY + 43, 4, 1);
+    ctx.fillRect(GAME_W / 2 - 4, titleY + 45, 8, 1);
+    ctx.globalAlpha = 1;
+
+    // ── PRESS START piscando
+    const blink = Math.floor(t / 18) % 2 === 0;
     if (blink) {
-      drawPixelText('TOQUE PARA INICIAR', GAME_W / 2, GAME_H - 25, 2, C.gold, 'center');
+      // Glow atrás
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = C.gold;
+      ctx.fillRect(GAME_W / 2 - 90, GAME_H - 32, 180, 14);
+      ctx.globalAlpha = 1;
+      drawPixelText('TOQUE PARA INICIAR', GAME_W / 2, GAME_H - 30, 2, C.gold, 'center');
     }
 
     // Créditos
-    drawPixelText('V1.0  2025', GAME_W / 2, GAME_H - 12, 1, '#445566', 'center');
+    drawPixelText('V1.0  2025', GAME_W / 2, GAME_H - 12, 1, '#334455', 'center');
   },
 
   drawTitleCharacters() {
-    // SuperTom na tela de título
-    const tx = GAME_W / 2 - 60;
-    const ty = GAME_H - 85;
-    const bob = Math.sin(this.titleTimer * 0.05) * 2;
+    const t = this.titleTimer;
 
-    // Corpo Tom
-    ctx.fillStyle = '#E8E8F0';
-    ctx.fillRect(tx + 1, ty + 6 + bob, 16, 20);
+    // ── SuperTom (esquerda) ──────────────────────────────────
+    const tx = GAME_W / 2 - 80;
+    const ty = GAME_H - 110;
+    const bob = Math.sin(t * 0.04) * 3;
+    const B = bob; // alias
+
+    // Sombra no chão
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(tx - 2, GAME_H - 22, 36, 6);
+    ctx.globalAlpha = 1;
+
+    // Jaleco branco (corpo)
+    ctx.fillStyle = '#D8D8EE';
+    ctx.fillRect(tx + 2, ty + 12 + B, 28, 38);
+    // Lapelas do jaleco
+    ctx.fillStyle = '#BBBBDD';
+    ctx.fillRect(tx + 2, ty + 12 + B, 6, 16);
+    ctx.fillRect(tx + 24, ty + 12 + B, 6, 16);
+    // Camisa azul por baixo
     ctx.fillStyle = '#1155AA';
-    ctx.fillRect(tx + 3, ty + 8 + bob, 10, 10);
+    ctx.fillRect(tx + 8, ty + 14 + B, 16, 14);
+    // Coração elétrico pulsante
+    const hpulse = 0.7 + Math.sin(t * 0.12) * 0.3;
+    ctx.globalAlpha = hpulse;
     ctx.fillStyle = C.cyan;
-    ctx.fillRect(tx + 5, ty + 10 + bob, 6, 4);
-    ctx.fillRect(tx + 6, ty + 14 + bob, 4, 2);
-    ctx.fillRect(tx + 7, ty + 15 + bob, 2, 2);
-    ctx.fillStyle = '#334477';
-    ctx.fillRect(tx + 2, ty + 18 + bob, 12, 8);
-    ctx.fillStyle = '#553322';
-    ctx.fillRect(tx + 1, ty + 24 + bob, 7, 3);
-    ctx.fillRect(tx + 10, ty + 24 + bob, 7, 3);
+    ctx.fillRect(tx + 13, ty + 16 + B, 6, 4);
+    ctx.fillRect(tx + 12, ty + 15 + B, 2, 2);
+    ctx.fillRect(tx + 18, ty + 15 + B, 2, 2);
+    ctx.fillRect(tx + 13, ty + 20 + B, 4, 2);
+    ctx.fillRect(tx + 14, ty + 22 + B, 2, 2);
+    ctx.globalAlpha = 0.5 * hpulse;
+    ctx.fillStyle = '#88FFFF';
+    ctx.fillRect(tx + 10, ty + 13 + B, 12, 12);
+    ctx.globalAlpha = 1;
+    // Calça azul escura
+    ctx.fillStyle = '#223366';
+    ctx.fillRect(tx + 4, ty + 38 + B, 24, 20);
+    // Divisão das pernas
+    ctx.fillStyle = '#1A2855';
+    ctx.fillRect(tx + 15, ty + 40 + B, 2, 18);
+    // Sapatos
+    ctx.fillStyle = '#442211';
+    ctx.fillRect(tx + 3, ty + 56 + B, 12, 5);
+    ctx.fillRect(tx + 17, ty + 56 + B, 12, 5);
+    ctx.fillStyle = '#331100';
+    ctx.fillRect(tx + 2, ty + 59 + B, 13, 2);
+    ctx.fillRect(tx + 17, ty + 59 + B, 13, 2);
+    // Cabeça
     ctx.fillStyle = '#FFCC99';
-    ctx.fillRect(tx + 3, ty + bob, 12, 7);
-    ctx.fillStyle = '#6B3A1F';
-    ctx.fillRect(tx + 3, ty + bob, 12, 3);
+    ctx.fillRect(tx + 6, ty + B, 20, 13);
+    // Cabelo castanho avermelhado
+    ctx.fillStyle = '#7B3A1A';
+    ctx.fillRect(tx + 6, ty + B, 20, 5);
+    ctx.fillRect(tx + 6, ty + 5 + B, 3, 4);
+    ctx.fillRect(tx + 23, ty + 5 + B, 3, 3);
+    // Topete
+    ctx.fillRect(tx + 12, ty - 3 + B, 8, 4);
+    // Olhos azuis
     ctx.fillStyle = '#1155CC';
-    ctx.fillRect(tx + 5, ty + 3 + bob, 2, 2);
-    ctx.fillRect(tx + 11, ty + 3 + bob, 2, 2);
-
-    // Vivi ao lado
-    const vx = GAME_W / 2 + 40;
-    const vy = GAME_H - 85;
-    const vbob = Math.sin(this.titleTimer * 0.05 + 1) * 2;
-
-    ctx.fillStyle = '#112244';
-    ctx.fillRect(vx + 2, vy + 8 + vbob, 14, 18);
-    ctx.fillStyle = C.cyan;
-    ctx.fillRect(vx + 4, vy + 10 + vbob, 2, 8);
-    ctx.fillRect(vx + 12, vy + 10 + vbob, 2, 8);
-    ctx.fillStyle = '#0A1A33';
-    ctx.fillRect(vx + 3, vy + 20 + vbob, 5, 7);
-    ctx.fillRect(vx + 10, vy + 20 + vbob, 5, 7);
+    ctx.fillRect(tx + 9, ty + 5 + B, 3, 3);
+    ctx.fillRect(tx + 20, ty + 5 + B, 3, 3);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(tx + 10, ty + 5 + B, 1, 1);
+    ctx.fillRect(tx + 21, ty + 5 + B, 1, 1);
+    // Sobrancelhas
+    ctx.fillStyle = '#5A2A0A';
+    ctx.fillRect(tx + 9, ty + 4 + B, 4, 1);
+    ctx.fillRect(tx + 19, ty + 4 + B, 4, 1);
+    // Nariz
+    ctx.fillStyle = '#CC9966';
+    ctx.fillRect(tx + 15, ty + 8 + B, 2, 2);
+    // Boca sorrindo
+    ctx.fillStyle = '#CC5533';
+    ctx.fillRect(tx + 10, ty + 11 + B, 12, 2);
+    ctx.fillRect(tx + 9, ty + 10 + B, 2, 2);
+    ctx.fillRect(tx + 21, ty + 10 + B, 2, 2);
+    // Braços
+    ctx.fillStyle = '#D8D8EE';
+    const armSwing = Math.sin(t * 0.04) * 4;
+    ctx.fillRect(tx - 4, ty + 14 + B, 7, 16 + armSwing);
+    ctx.fillRect(tx + 29, ty + 14 + B, 7, 16 - armSwing);
+    // Mãos
     ctx.fillStyle = '#FFCC99';
-    ctx.fillRect(vx + 3, vy + vbob, 12, 9);
-    ctx.fillStyle = '#330066';
-    ctx.fillRect(vx + 3, vy + vbob, 12, 3);
-    ctx.fillRect(vx + 3, vy + 3 + vbob, 2, 4);
-    ctx.fillRect(vx + 13, vy + 3 + vbob, 2, 4);
-    ctx.fillStyle = '#9933FF';
-    ctx.fillRect(vx + 5, vy + 4 + vbob, 2, 2);
-    ctx.fillRect(vx + 11, vy + 4 + vbob, 2, 2);
-    ctx.fillStyle = '#CC6644';
-    ctx.fillRect(vx + 6, vy + 7 + vbob, 6, 1);
+    ctx.fillRect(tx - 4, ty + 28 + B + armSwing, 6, 5);
+    ctx.fillRect(tx + 30, ty + 28 + B - armSwing, 6, 5);
+    // Brilho cósmico ao redor do Tom
+    ctx.globalAlpha = 0.15 + Math.sin(t * 0.07) * 0.08;
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(tx - 8, ty - 5 + B, 48, 70);
+    ctx.globalAlpha = 1;
 
-    // Estrela Orion entre eles
-    const ox = GAME_W / 2 - 7;
-    const oy = GAME_H - 75 + Math.sin(this.titleTimer * 0.08) * 4;
+    // ── Vivi (direita) ───────────────────────────────────────
+    const vx = GAME_W / 2 + 44;
+    const vy = GAME_H - 110;
+    const vbob = Math.sin(t * 0.04 + 1.2) * 3;
+    const VB = vbob;
+
+    // Sombra
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(vx - 2, GAME_H - 22, 34, 6);
+    ctx.globalAlpha = 1;
+
+    // Bodysuit azul escuro com detalhes
+    ctx.fillStyle = '#0D1A33';
+    ctx.fillRect(vx + 2, vy + 12 + VB, 26, 36);
+    // Detalhes do bodysuit - linhas cyan
+    ctx.fillStyle = '#0088AA';
+    ctx.fillRect(vx + 4, vy + 14 + VB, 2, 20);
+    ctx.fillRect(vx + 22, vy + 14 + VB, 2, 20);
+    ctx.fillRect(vx + 6, vy + 26 + VB, 18, 2);
+    // Detalhe no peito
+    ctx.fillStyle = C.cyan;
+    ctx.globalAlpha = 0.7 + Math.sin(t * 0.09) * 0.3;
+    ctx.fillRect(vx + 11, vy + 16 + VB, 8, 6);
+    ctx.globalAlpha = 1;
+    // Pernas
+    ctx.fillStyle = '#0A1428';
+    ctx.fillRect(vx + 4, vy + 44 + VB, 9, 16);
+    ctx.fillRect(vx + 17, vy + 44 + VB, 9, 16);
+    // Botas
+    ctx.fillStyle = '#001133';
+    ctx.fillRect(vx + 3, vy + 56 + VB, 11, 5);
+    ctx.fillRect(vx + 16, vy + 56 + VB, 11, 5);
+    ctx.fillStyle = '#0033AA';
+    ctx.fillRect(vx + 3, vy + 59 + VB, 11, 2);
+    ctx.fillRect(vx + 16, vy + 59 + VB, 11, 2);
+    // Cabeça
+    ctx.fillStyle = '#FFCC99';
+    ctx.fillRect(vx + 4, vy + VB, 22, 13);
+    // Cabelo roxo escuro longo
+    ctx.fillStyle = '#220044';
+    ctx.fillRect(vx + 4, vy + VB, 22, 4);
+    ctx.fillRect(vx + 4, vy + 4 + VB, 3, 8);
+    ctx.fillRect(vx + 23, vy + 4 + VB, 3, 8);
+    // Mechas caindo
+    ctx.fillStyle = '#330066';
+    ctx.fillRect(vx + 2, vy + 6 + VB, 4, 20);
+    ctx.fillRect(vx + 24, vy + 6 + VB, 4, 20);
+    // Olhos roxos
+    ctx.fillStyle = '#AA44FF';
+    ctx.fillRect(vx + 8, vy + 5 + VB, 4, 3);
+    ctx.fillRect(vx + 18, vy + 5 + VB, 4, 3);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(vx + 9, vy + 5 + VB, 1, 1);
+    ctx.fillRect(vx + 19, vy + 5 + VB, 1, 1);
+    // Sobrancelhas
+    ctx.fillStyle = '#110022';
+    ctx.fillRect(vx + 7, vy + 4 + VB, 5, 1);
+    ctx.fillRect(vx + 17, vy + 4 + VB, 5, 1);
+    // Nariz
+    ctx.fillStyle = '#CC9966';
+    ctx.fillRect(vx + 14, vy + 8 + VB, 2, 2);
+    // Sorriso suave
+    ctx.fillStyle = '#CC5533';
+    ctx.fillRect(vx + 10, vy + 11 + VB, 10, 1);
+    ctx.fillRect(vx + 9, vy + 10 + VB, 2, 2);
+    ctx.fillRect(vx + 19, vy + 10 + VB, 2, 2);
+    // Braços
+    ctx.fillStyle = '#0D1A33';
+    const varmSwing = Math.sin(t * 0.04 + 1.2) * 3;
+    ctx.fillRect(vx - 3, vy + 14 + VB, 6, 14 + varmSwing);
+    ctx.fillRect(vx + 27, vy + 14 + VB, 6, 14 - varmSwing);
+    // Mãos
+    ctx.fillStyle = '#FFCC99';
+    ctx.fillRect(vx - 3, vy + 26 + VB + varmSwing, 5, 5);
+    ctx.fillRect(vx + 28, vy + 26 + VB - varmSwing, 5, 5);
+    // Aura mágica da Vivi
+    ctx.globalAlpha = 0.12 + Math.sin(t * 0.06 + 2) * 0.06;
+    ctx.fillStyle = C.purple;
+    ctx.fillRect(vx - 6, vy - 4 + VB, 44, 68);
+    ctx.globalAlpha = 1;
+
+    // ── Orion flutuando entre eles ───────────────────────────
+    const ox = GAME_W / 2 - 9;
+    const oy = GAME_H - 95 + Math.sin(t * 0.07) * 6;
+    const opulse = 0.6 + Math.sin(t * 0.15) * 0.4;
+
+    // Halo externo
+    ctx.globalAlpha = opulse * 0.25;
     ctx.fillStyle = C.gold;
-    ctx.fillRect(ox + 3, oy, 6, 14);
-    ctx.fillRect(ox, oy + 3, 14, 6);
-    ctx.fillRect(ox + 2, oy + 2, 2, 2);
-    ctx.fillRect(ox + 10, oy + 2, 2, 2);
-    ctx.fillRect(ox + 2, oy + 10, 2, 2);
-    ctx.fillRect(ox + 10, oy + 10, 2, 2);
+    ctx.fillRect(ox - 6, oy - 6, 30, 30);
+    ctx.globalAlpha = 1;
+
+    // Anel cósmico girando
+    ctx.globalAlpha = opulse * 0.7;
+    ctx.fillStyle = C.cyan;
+    ctx.fillRect(ox - 3, oy + 7, 24, 3);
+    ctx.fillRect(ox + 7, oy - 3, 3, 24);
+    ctx.globalAlpha = 1;
+
+    // Estrela dourada 4 pontas
+    ctx.fillStyle = C.gold;
+    ctx.fillRect(ox + 5, oy, 8, 18);
+    ctx.fillRect(ox, oy + 5, 18, 8);
+    ctx.fillRect(ox + 3, oy + 3, 3, 3);
+    ctx.fillRect(ox + 12, oy + 3, 3, 3);
+    ctx.fillRect(ox + 3, oy + 12, 3, 3);
+    ctx.fillRect(ox + 12, oy + 12, 3, 3);
+    // Brilho central
     ctx.fillStyle = '#FFFACD';
-    ctx.fillRect(ox + 6, oy + 5, 2, 4);
-    ctx.fillRect(ox + 5, oy + 6, 4, 2);
+    ctx.globalAlpha = opulse;
+    ctx.fillRect(ox + 8, oy + 6, 2, 6);
+    ctx.fillRect(ox + 6, oy + 8, 6, 2);
+    ctx.globalAlpha = 1;
+
+    // Partículas de energia ao redor do Orion
+    const pa = [[-8,-4],[10,-8],[-10,8],[12,6],[-6,14],[10,14]];
+    for (let i = 0; i < pa.length; i++) {
+      const px2 = ox + 9 + pa[i][0] + Math.sin(t * 0.08 + i) * 3;
+      const py2 = oy + 9 + pa[i][1] + Math.cos(t * 0.08 + i) * 3;
+      ctx.globalAlpha = 0.4 + Math.sin(t * 0.1 + i) * 0.3;
+      ctx.fillStyle = i % 2 === 0 ? C.gold : C.cyan;
+      ctx.fillRect(px2, py2, 2, 2);
+    }
+    ctx.globalAlpha = 1;
+
+    // Linha de conexão entre Tom e Vivi (energia)
+    const lineAlpha = 0.15 + Math.sin(t * 0.05) * 0.1;
+    ctx.globalAlpha = lineAlpha;
+    ctx.fillStyle = C.cyan;
+    for (let lx = tx + 32; lx < vx - 2; lx += 6) {
+      ctx.fillRect(lx, GAME_H - 60 + Math.sin(lx * 0.1 + t * 0.05) * 3, 3, 1);
+    }
+    ctx.globalAlpha = 1;
   },
 
   drawLevelComplete() {
