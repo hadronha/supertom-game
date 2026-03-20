@@ -270,12 +270,12 @@ const musicSystem = {
   pendingTrack: null,
 
   init() {
-    this.intro = new Audio('music_intro.mp3');
+    this.intro = new Audio('music_intro_chip.mp3');
     this.intro.loop = true;
     this.intro.volume = 0;
     this.intro.preload = 'auto';
 
-    this.fase1 = new Audio('music_fase1.mp3');
+    this.fase1 = new Audio('music_fase1_chip.mp3');
     this.fase1.loop = true;
     this.fase1.volume = 0;
     this.fase1.preload = 'auto';
