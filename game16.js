@@ -259,6 +259,107 @@ function sfxVictory() {
   notes.forEach((f, i) => setTimeout(() => playBeep(f, 0.2, 0.1, 'sine'), i * 120));
 }
 
+// ─── SISTEMA DE MÚSICA (MP3) ─────────────────────────────────
+const musicSystem = {
+  intro: null,
+  fase1: null,
+  current: null,
+  volume: 0.35,
+  fadeInterval: null,
+  unlocked: false,
+  pendingTrack: null,
+
+  init() {
+    this.intro = new Audio('music_intro.mp3');
+    this.intro.loop = true;
+    this.intro.volume = 0;
+    this.intro.preload = 'auto';
+
+    this.fase1 = new Audio('music_fase1.mp3');
+    this.fase1.loop = true;
+    this.fase1.volume = 0;
+    this.fase1.preload = 'auto';
+
+    // Desbloquear áudio na primeira interação do usuário
+    const unlock = () => {
+      if (!this.unlocked) {
+        this.unlocked = true;
+        // Se há uma track pendente, tocar agora
+        if (this.pendingTrack) {
+          const track = this.pendingTrack;
+          this.pendingTrack = null;
+          this.current = null; // Reset para permitir play
+          this.play(track);
+        }
+      }
+    };
+    ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(evt => {
+      document.addEventListener(evt, unlock, { once: false });
+    });
+  },
+
+  play(track) {
+    if (this.current === track) return;
+    this.stopAll();
+    this.current = track;
+    const audio = this[track];
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio.volume = 0;
+    const playPromise = audio.play();
+    if (playPromise) {
+      playPromise.then(() => {
+        this._fadeIn(audio);
+      }).catch(() => {
+        // Autoplay bloqueado - guardar track pendente
+        this.pendingTrack = track;
+      });
+    }
+  },
+
+  stopAll() {
+    if (this.fadeInterval) clearInterval(this.fadeInterval);
+    ['intro', 'fase1'].forEach(t => {
+      const a = this[t];
+      if (a) { a.pause(); a.currentTime = 0; a.volume = 0; }
+    });
+    this.current = null;
+  },
+
+  fadeOut(callback) {
+    if (this.fadeInterval) clearInterval(this.fadeInterval);
+    const audio = this.current ? this[this.current] : null;
+    if (!audio || audio.paused) { if (callback) callback(); return; }
+    this.fadeInterval = setInterval(() => {
+      if (audio.volume > 0.02) {
+        audio.volume = Math.max(0, audio.volume - 0.02);
+      } else {
+        audio.volume = 0;
+        audio.pause();
+        clearInterval(this.fadeInterval);
+        this.fadeInterval = null;
+        this.current = null;
+        if (callback) callback();
+      }
+    }, 30);
+  },
+
+  _fadeIn(audio) {
+    if (this.fadeInterval) clearInterval(this.fadeInterval);
+    this.fadeInterval = setInterval(() => {
+      if (audio.volume < this.volume - 0.02) {
+        audio.volume = Math.min(this.volume, audio.volume + 0.02);
+      } else {
+        audio.volume = this.volume;
+        clearInterval(this.fadeInterval);
+        this.fadeInterval = null;
+      }
+    }, 30);
+  }
+};
+
+musicSystem.init();
+
 // ─── SISTEMA DE PARTÍCULAS 16-BIT ────────────────────────────
 const particles = [];
 class Particle {
@@ -2768,12 +2869,18 @@ const game = {
     this._prevOrions = 0;
     this.loadLevel(0);
     this.state = 'playing';
+    musicSystem.fadeOut(() => musicSystem.play('fase1'));
   },
 
   update() {
     this.ticks++;
     updateParticles();
     updateTrails();
+
+    // Tocar música da intro na tela título
+    if (this.state === 'title' && musicSystem.current !== 'intro') {
+      musicSystem.play('intro');
+    }
 
     if (this.state === 'title') {
       if (isTouching || keys['Enter'] || keys['Space'] || false) {
@@ -2791,11 +2898,13 @@ const game = {
         this.boss.update(p);
         if (this.boss.dead && this.boss.deathTimer <= 0) {
           this.state = 'victory';
+          musicSystem.fadeOut();
         }
       }
       updateCamera(p, lvl.width, lvl.height);
       if (p.hp <= 0) {
         this.state = 'gameover';
+        musicSystem.fadeOut();
         cameraShake(8, 20);
       }
     }
@@ -2809,6 +2918,7 @@ const game = {
     else if (this.state === 'gameover' || this.state === 'victory') {
       if (isTouching || keys['Enter'] || keys['Space'] || false) {
         this.state = 'title';
+        musicSystem.stopAll();
         isTouching = false;
       }
     }

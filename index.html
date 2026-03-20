@@ -66,52 +66,44 @@
   <!-- Botão de som -->
   <button id="soundBtn" title="Ligar/Desligar Música">♪</button>
 
-  <!-- Áudio da trilha sonora -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="supertom_theme.ogg" type="audio/ogg">
-    <source src="supertom_theme.mp3" type="audio/mpeg">
-  </audio>
+  <!-- Engine 16-bit (inclui musicSystem integrado) -->
+  <script src="game16.js"></script>
 
   <script>
-    // ─── SISTEMA DE ÁUDIO (gerenciado pelo HTML) ────────────────────
-    const bgMusic = document.getElementById('bgMusic');
+    // ─── CONTROLE DO BOTÃO DE SOM ────────────────────────────────
     const soundBtn = document.getElementById('soundBtn');
-    let musicStarted = false;
     let isMuted = false;
 
-    bgMusic.volume = 0.45;
-
-    function startMusic() {
-      if (!musicStarted) {
-        bgMusic.play().then(() => {
-          musicStarted = true;
-        }).catch(() => {});
+    // Desbloquear áudio na primeira interação do usuário
+    function unlockAudio() {
+      if (typeof musicSystem !== 'undefined') {
+        // Tentar tocar a música atual se estiver pausada
+        const track = musicSystem.current;
+        if (track && musicSystem[track] && musicSystem[track].paused) {
+          musicSystem[track].play().catch(() => {});
+          musicSystem._fadeIn(musicSystem[track]);
+        }
       }
     }
 
     ['click', 'touchstart', 'keydown'].forEach(evt => {
-      document.addEventListener(evt, startMusic, { once: false });
+      document.addEventListener(evt, unlockAudio, { once: false });
     });
 
     soundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       isMuted = !isMuted;
-      bgMusic.muted = isMuted;
+
+      if (typeof musicSystem !== 'undefined') {
+        // Mutar/desmutar todas as tracks
+        ['intro', 'fase1'].forEach(t => {
+          if (musicSystem[t]) musicSystem[t].muted = isMuted;
+        });
+      }
+
       soundBtn.textContent = isMuted ? '✕' : '♪';
       soundBtn.classList.toggle('muted', isMuted);
-      if (!musicStarted) startMusic();
     });
-
-    window.gameAudio = {
-      start: startMusic,
-      mute: () => { bgMusic.muted = true; isMuted = true; },
-      unmute: () => { bgMusic.muted = false; isMuted = false; },
-      setVolume: (v) => { bgMusic.volume = Math.max(0, Math.min(1, v)); },
-      isPlaying: () => musicStarted && !bgMusic.paused,
-    };
   </script>
-
-  <!-- Engine 16-bit -->
-  <script src="game16.js"></script>
 </body>
 </html>
