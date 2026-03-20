@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>SuperTom: A Jornada do Coração Elétrico</title>
+  <title>SuperTom: A Jornada do Coração Elétrico — 16-bit</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -41,8 +41,8 @@
       right: 10px;
       z-index: 9999;
       background: rgba(0,0,0,0.7);
-      border: 2px solid #f5a623;
-      color: #f5a623;
+      border: 2px solid #00FFFF;
+      color: #00FFFF;
       font-size: 20px;
       width: 40px;
       height: 40px;
@@ -52,9 +52,9 @@
       align-items: center;
       justify-content: center;
       font-family: monospace;
-      transition: background 0.2s;
+      transition: background 0.2s, border-color 0.2s;
     }
-    #soundBtn:hover { background: rgba(245,166,35,0.2); }
+    #soundBtn:hover { background: rgba(0,255,255,0.15); }
     #soundBtn.muted { border-color: #555; color: #555; }
   </style>
 </head>
@@ -73,30 +73,26 @@
   </audio>
 
   <script>
-    // ─── SISTEMA DE ÁUDIO ───────────────────────────────────────────
+    // ─── SISTEMA DE ÁUDIO (gerenciado pelo HTML) ────────────────────
     const bgMusic = document.getElementById('bgMusic');
     const soundBtn = document.getElementById('soundBtn');
     let musicStarted = false;
     let isMuted = false;
 
-    bgMusic.volume = 0.55;
+    bgMusic.volume = 0.45;
 
     function startMusic() {
       if (!musicStarted) {
         bgMusic.play().then(() => {
           musicStarted = true;
-        }).catch(() => {
-          // Autoplay bloqueado — aguarda interação
-        });
+        }).catch(() => {});
       }
     }
 
-    // Inicia música na primeira interação do usuário
     ['click', 'touchstart', 'keydown'].forEach(evt => {
       document.addEventListener(evt, startMusic, { once: false });
     });
 
-    // Botão de mute
     soundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       isMuted = !isMuted;
@@ -106,7 +102,6 @@
       if (!musicStarted) startMusic();
     });
 
-    // Expõe controle de áudio para o game.js
     window.gameAudio = {
       start: startMusic,
       mute: () => { bgMusic.muted = true; isMuted = true; },
@@ -116,6 +111,7 @@
     };
   </script>
 
-  <script src="game.js"></script>
+  <!-- Engine 16-bit -->
+  <script src="game16.js"></script>
 </body>
 </html>
