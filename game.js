@@ -503,116 +503,276 @@ class Player {
   drawSprite() {
     const hw = this.w / 2;
     const hh = this.h / 2;
-    const pulse = 0.7 + Math.sin(this.heartPulse) * 0.3;
+    const t = this.animTimer || 0;
+    const pulse = 0.6 + Math.sin(this.heartPulse) * 0.4;
+    const breathe = Math.sin(t * 0.05) * 0.5;
 
-    // Sombra no chão
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillRect(-hw + 2, hh - 1, this.w - 4, 3);
+    // Sombra elíptica no chão
+    ctx.fillStyle = 'rgba(0,0,100,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(0, hh + 1, hw - 2, 2, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-    // ── PERNAS
+    // ── PERNAS com joelhos e detalhes
     if (this.state === 'walk') {
-      const legSwing = Math.sin(this.animFrame * Math.PI / 2) * 4;
+      const ls = Math.sin(this.animFrame * Math.PI / 2) * 5;
+      // Calça azul escura com costura
+      ctx.fillStyle = '#1A2A55';
+      ctx.fillRect(-hw + 2, hh - 13, 7, 13 + ls);
+      ctx.fillRect(hw - 9, hh - 13, 7, 13 - ls);
+      // Linha de costura
+      ctx.fillStyle = '#2A3A77';
+      ctx.fillRect(-hw + 5, hh - 12, 1, 10 + ls);
+      ctx.fillRect(hw - 6, hh - 12, 1, 10 - ls);
+      // Joelhos
       ctx.fillStyle = '#223366';
-      ctx.fillRect(-hw + 2, hh - 10, 6, 10 + legSwing);
-      ctx.fillRect(hw - 8, hh - 10, 6, 10 - legSwing);
-      // Sapatos animados
-      ctx.fillStyle = '#442211';
-      ctx.fillRect(-hw + 1, hh - 3 + legSwing, 8, 3);
-      ctx.fillRect(hw - 9, hh - 3 - legSwing, 8, 3);
+      ctx.fillRect(-hw + 2, hh - 9 + ls * 0.3, 7, 3);
+      ctx.fillRect(hw - 9, hh - 9 - ls * 0.3, 7, 3);
+      // Sapatos com sola
+      ctx.fillStyle = '#2A1500';
+      ctx.fillRect(-hw, hh - 4 + ls, 10, 4);
+      ctx.fillRect(hw - 10, hh - 4 - ls, 10, 4);
+      ctx.fillStyle = '#553322';
+      ctx.fillRect(-hw + 1, hh - 4 + ls, 8, 3);
+      ctx.fillRect(hw - 9, hh - 4 - ls, 8, 3);
+      // Sola branca
+      ctx.fillStyle = '#DDDDCC';
+      ctx.fillRect(-hw, hh + ls, 10, 1);
+      ctx.fillRect(hw - 10, hh - ls, 10, 1);
     } else if (this.state === 'jump') {
-      ctx.fillStyle = '#223366';
-      ctx.fillRect(-hw + 2, hh - 8, 6, 8);
-      ctx.fillRect(hw - 8, hh - 12, 6, 12);
-      ctx.fillStyle = '#442211';
-      ctx.fillRect(-hw + 1, hh - 3, 8, 3);
+      // Pernas dobradas no pulo
+      ctx.fillStyle = '#1A2A55';
+      ctx.fillRect(-hw + 2, hh - 13, 7, 8);
+      ctx.fillRect(hw - 9, hh - 13, 7, 12);
+      ctx.fillStyle = '#2A1500';
+      ctx.fillRect(-hw, hh - 7, 10, 4);
+      ctx.fillRect(hw - 10, hh - 3, 10, 4);
+      ctx.fillStyle = '#553322';
+      ctx.fillRect(-hw + 1, hh - 7, 8, 3);
       ctx.fillRect(hw - 9, hh - 3, 8, 3);
     } else {
-      ctx.fillStyle = '#223366';
-      ctx.fillRect(-hw + 2, hh - 10, 6, 10);
-      ctx.fillRect(hw - 8, hh - 10, 6, 10);
-      ctx.fillStyle = '#442211';
-      ctx.fillRect(-hw + 1, hh - 3, 8, 3);
-      ctx.fillRect(hw - 9, hh - 3, 8, 3);
+      // Idle com leve respiração
+      ctx.fillStyle = '#1A2A55';
+      ctx.fillRect(-hw + 2, hh - 13, 7, 13);
+      ctx.fillRect(hw - 9, hh - 13, 7, 13);
+      ctx.fillStyle = '#2A3A77';
+      ctx.fillRect(-hw + 5, hh - 12, 1, 10);
+      ctx.fillRect(hw - 6, hh - 12, 1, 10);
+      ctx.fillStyle = '#2A1500';
+      ctx.fillRect(-hw, hh - 4, 10, 4);
+      ctx.fillRect(hw - 10, hh - 4, 10, 4);
+      ctx.fillStyle = '#553322';
+      ctx.fillRect(-hw + 1, hh - 4, 8, 3);
+      ctx.fillRect(hw - 9, hh - 4, 8, 3);
+      ctx.fillStyle = '#DDDDCC';
+      ctx.fillRect(-hw, hh, 10, 1);
+      ctx.fillRect(hw - 10, hh, 10, 1);
     }
 
-    // ── CORPO: jaleco branco
-    ctx.fillStyle = '#D8D8EE';
-    ctx.fillRect(-hw + 1, -hh + 8, this.w - 2, this.h - 18);
-    // Lapelas
-    ctx.fillStyle = '#BBBBDD';
-    ctx.fillRect(-hw + 1, -hh + 8, 4, 10);
-    ctx.fillRect(hw - 5, -hh + 8, 4, 10);
-    // Camisa azul
-    ctx.fillStyle = '#1155AA';
-    ctx.fillRect(-hw + 5, -hh + 10, this.w - 10, 8);
+    // ── CORPO: jaleco branco com volume
+    // Sombra lateral do jaleco
+    ctx.fillStyle = '#AAAACC';
+    ctx.fillRect(-hw + 1, -hh + 9 + breathe, 3, this.h - 22);
+    ctx.fillRect(hw - 4, -hh + 9 + breathe, 3, this.h - 22);
+    // Jaleco principal
+    ctx.fillStyle = '#E8E8F8';
+    ctx.fillRect(-hw + 2, -hh + 9 + breathe, this.w - 4, this.h - 22);
+    // Reflexo de luz no jaleco
+    ctx.fillStyle = '#F8F8FF';
+    ctx.fillRect(-hw + 4, -hh + 10 + breathe, 3, this.h - 26);
+    // Lapelas com detalhe
+    ctx.fillStyle = '#C8C8E8';
+    ctx.fillRect(-hw + 2, -hh + 9 + breathe, 5, 12);
+    ctx.fillRect(hw - 7, -hh + 9 + breathe, 5, 12);
+    // Borda das lapelas
+    ctx.fillStyle = '#9999BB';
+    ctx.fillRect(-hw + 2, -hh + 9 + breathe, 1, 12);
+    ctx.fillRect(hw - 3, -hh + 9 + breathe, 1, 12);
+    // Camisa azul profunda
+    ctx.fillStyle = '#0D3D8A';
+    ctx.fillRect(-hw + 7, -hh + 11 + breathe, this.w - 14, 10);
+    // Detalhe da camisa
+    ctx.fillStyle = '#1555AA';
+    ctx.fillRect(-hw + 8, -hh + 12 + breathe, this.w - 16, 8);
+    // Estetoscópio
+    ctx.fillStyle = '#888899';
+    ctx.fillRect(-hw + 6, -hh + 18 + breathe, 2, 4);
+    ctx.fillRect(-hw + 7, -hh + 22 + breathe, 5, 1);
+    ctx.fillStyle = '#AAAACC';
+    ctx.fillRect(-hw + 6, -hh + 17 + breathe, 2, 2);
+    // Bolso do jaleco
+    ctx.fillStyle = '#CCCCEE';
+    ctx.fillRect(hw - 8, -hh + 18 + breathe, 5, 4);
+    ctx.fillStyle = '#AAAACC';
+    ctx.fillRect(hw - 8, -hh + 18 + breathe, 5, 1);
 
-    // Coração elétrico pulsante
+    // ── CORAÇÃO ELÉTRICO (mais detalhado)
+    const hpx = 0, hpy = -hh + 12 + breathe;
+    // Glow externo
+    ctx.globalAlpha = pulse * 0.2;
+    ctx.fillStyle = '#00FFFF';
+    ctx.fillRect(hpx - 6, hpy - 2, 12, 10);
+    // Glow médio
+    ctx.globalAlpha = pulse * 0.4;
+    ctx.fillRect(hpx - 4, hpy - 1, 8, 8);
+    ctx.globalAlpha = 1;
+    // Coração pixel art detalhado
+    ctx.fillStyle = '#00DDFF';
+    ctx.fillRect(hpx - 3, hpy, 2, 2);
+    ctx.fillRect(hpx + 1, hpy, 2, 2);
+    ctx.fillRect(hpx - 4, hpy + 1, 8, 3);
+    ctx.fillRect(hpx - 3, hpy + 4, 6, 2);
+    ctx.fillRect(hpx - 2, hpy + 6, 4, 1);
+    ctx.fillRect(hpx - 1, hpy + 7, 2, 1);
+    // Brilho do coração
     ctx.globalAlpha = pulse;
-    ctx.fillStyle = C.cyan;
-    ctx.fillRect(-2, -hh + 11, 4, 3);
-    ctx.fillRect(-3, -hh + 10, 2, 2);
-    ctx.fillRect(1, -hh + 10, 2, 2);
-    ctx.fillRect(-1, -hh + 14, 2, 1);
-    // Glow do coração
-    ctx.globalAlpha = pulse * 0.3;
-    ctx.fillStyle = '#88FFFF';
-    ctx.fillRect(-5, -hh + 8, 10, 10);
+    ctx.fillStyle = '#AAFFFF';
+    ctx.fillRect(hpx - 2, hpy + 1, 2, 2);
+    ctx.globalAlpha = 1;
+    // Raios elétricos pulsantes
+    if (pulse > 0.9) {
+      ctx.fillStyle = '#FFFF88';
+      ctx.globalAlpha = (pulse - 0.9) * 5;
+      ctx.fillRect(hpx - 6, hpy + 3, 2, 1);
+      ctx.fillRect(hpx + 4, hpy + 3, 2, 1);
+      ctx.fillRect(hpx - 1, hpy - 2, 1, 2);
+      ctx.globalAlpha = 1;
+    }
+
+    // ── BRAÇOS com cotovelos
+    if (this.state === 'walk') {
+      const as = Math.sin(this.animFrame * Math.PI / 2) * 4;
+      // Braço esquerdo
+      ctx.fillStyle = '#E8E8F8';
+      ctx.fillRect(-hw - 3, -hh + 10, 5, 7 + as);
+      ctx.fillStyle = '#C8C8E8';
+      ctx.fillRect(-hw - 3, -hh + 10, 2, 7 + as);
+      // Cotovelo
+      ctx.fillStyle = '#CCCCEE';
+      ctx.fillRect(-hw - 4, -hh + 16 + as, 5, 3);
+      // Mão
+      ctx.fillStyle = '#FFBB88';
+      ctx.fillRect(-hw - 3, -hh + 18 + as, 5, 4);
+      ctx.fillStyle = '#FFCC99';
+      ctx.fillRect(-hw - 2, -hh + 18 + as, 3, 3);
+      // Braço direito
+      ctx.fillStyle = '#E8E8F8';
+      ctx.fillRect(hw - 2, -hh + 10, 5, 7 - as);
+      ctx.fillStyle = '#C8C8E8';
+      ctx.fillRect(hw, -hh + 10, 2, 7 - as);
+      ctx.fillStyle = '#CCCCEE';
+      ctx.fillRect(hw - 1, -hh + 16 - as, 5, 3);
+      ctx.fillStyle = '#FFBB88';
+      ctx.fillRect(hw - 2, -hh + 18 - as, 5, 4);
+      ctx.fillStyle = '#FFCC99';
+      ctx.fillRect(hw - 1, -hh + 18 - as, 3, 3);
+    } else if (this.state === 'jump') {
+      // Braços levantados no pulo
+      ctx.fillStyle = '#E8E8F8';
+      ctx.fillRect(-hw - 4, -hh + 8, 5, 8);
+      ctx.fillRect(hw - 1, -hh + 8, 5, 8);
+      ctx.fillStyle = '#FFBB88';
+      ctx.fillRect(-hw - 4, -hh + 15, 5, 4);
+      ctx.fillRect(hw - 1, -hh + 15, 5, 4);
+    } else {
+      // Idle
+      ctx.fillStyle = '#E8E8F8';
+      ctx.fillRect(-hw - 3, -hh + 10, 5, 9);
+      ctx.fillRect(hw - 2, -hh + 10, 5, 9);
+      ctx.fillStyle = '#C8C8E8';
+      ctx.fillRect(-hw - 3, -hh + 10, 2, 9);
+      ctx.fillRect(hw, -hh + 10, 2, 9);
+      ctx.fillStyle = '#FFBB88';
+      ctx.fillRect(-hw - 3, -hh + 18, 5, 4);
+      ctx.fillRect(hw - 2, -hh + 18, 5, 4);
+      ctx.fillStyle = '#FFCC99';
+      ctx.fillRect(-hw - 2, -hh + 18, 3, 3);
+      ctx.fillRect(hw - 1, -hh + 18, 3, 3);
+    }
+
+    // ── PESCOÇO
+    ctx.fillStyle = '#FFBB88';
+    ctx.fillRect(-2, -hh + 7 + breathe, 4, 3);
+
+    // ── CABEÇA (mais detalhada)
+    // Sombra da cabeça
+    ctx.fillStyle = '#DD9966';
+    ctx.fillRect(-hw + 4, -hh + 1, this.w - 8, 9);
+    // Rosto
+    ctx.fillStyle = '#FFCC99';
+    ctx.fillRect(-hw + 4, -hh, this.w - 8, 8);
+    // Bochechas rosadas
+    ctx.fillStyle = '#FFAAAA';
+    ctx.globalAlpha = 0.5;
+    ctx.fillRect(-hw + 4, -hh + 5, 3, 2);
+    ctx.fillRect(hw - 7, -hh + 5, 3, 2);
     ctx.globalAlpha = 1;
 
-    // ── BRAÇOS
-    if (this.state === 'walk') {
-      const armSwing = Math.sin(this.animFrame * Math.PI / 2) * 3;
-      ctx.fillStyle = '#D8D8EE';
-      ctx.fillRect(-hw - 2, -hh + 9, 4, 9 + armSwing);
-      ctx.fillRect(hw - 2, -hh + 9, 4, 9 - armSwing);
-      ctx.fillStyle = '#FFCC99';
-      ctx.fillRect(-hw - 2, -hh + 16 + armSwing, 4, 4);
-      ctx.fillRect(hw - 2, -hh + 16 - armSwing, 4, 4);
-    } else if (this.state === 'jump') {
-      ctx.fillStyle = '#D8D8EE';
-      ctx.fillRect(-hw - 3, -hh + 7, 4, 7);
-      ctx.fillRect(hw - 1, -hh + 7, 4, 7);
-      ctx.fillStyle = '#FFCC99';
-      ctx.fillRect(-hw - 3, -hh + 13, 4, 4);
-      ctx.fillRect(hw - 1, -hh + 13, 4, 4);
-    } else {
-      ctx.fillStyle = '#D8D8EE';
-      ctx.fillRect(-hw - 2, -hh + 9, 4, 8);
-      ctx.fillRect(hw - 2, -hh + 9, 4, 8);
-      ctx.fillStyle = '#FFCC99';
-      ctx.fillRect(-hw - 2, -hh + 16, 4, 4);
-      ctx.fillRect(hw - 2, -hh + 16, 4, 4);
-    }
-
-    // ── CABEÇA
-    ctx.fillStyle = '#FFCC99';
-    ctx.fillRect(-hw + 3, -hh, this.w - 6, 9);
-    // Cabelo castanho avermelhado
-    ctx.fillStyle = '#7B3A1A';
-    ctx.fillRect(-hw + 3, -hh, this.w - 6, 4);
-    ctx.fillRect(-hw + 3, -hh + 4, 2, 3);
-    ctx.fillRect(hw - 5, -hh + 4, 2, 2);
-    // Topete
-    ctx.fillRect(-2, -hh - 2, 6, 3);
-    // Olhos azuis
-    ctx.fillStyle = '#1155CC';
-    ctx.fillRect(-4, -hh + 4, 3, 2);
-    ctx.fillRect(1, -hh + 4, 3, 2);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(-3, -hh + 4, 1, 1);
-    ctx.fillRect(2, -hh + 4, 1, 1);
-    // Sobrancelha
+    // Cabelo castanho avermelhado com volume
     ctx.fillStyle = '#5A2A0A';
-    ctx.fillRect(-4, -hh + 3, 4, 1);
-    ctx.fillRect(0, -hh + 3, 4, 1);
-    // Boca
-    ctx.fillStyle = '#CC5533';
+    ctx.fillRect(-hw + 3, -hh - 1, this.w - 6, 5);
+    ctx.fillStyle = '#7B3A1A';
+    ctx.fillRect(-hw + 4, -hh, this.w - 8, 4);
+    // Laterais do cabelo
+    ctx.fillStyle = '#5A2A0A';
+    ctx.fillRect(-hw + 3, -hh + 3, 3, 5);
+    ctx.fillRect(hw - 6, -hh + 3, 3, 4);
+    // Topete elaborado
+    ctx.fillStyle = '#7B3A1A';
+    ctx.fillRect(-1, -hh - 3, 5, 4);
+    ctx.fillRect(0, -hh - 4, 3, 2);
+    ctx.fillStyle = '#9B4A2A';
+    ctx.fillRect(0, -hh - 3, 3, 3);
+    // Reflexo no cabelo
+    ctx.fillStyle = '#AA5533';
+    ctx.fillRect(1, -hh - 1, 2, 2);
+
+    // Orelhas
+    ctx.fillStyle = '#FFBB88';
+    ctx.fillRect(-hw + 3, -hh + 3, 2, 3);
+    ctx.fillRect(hw - 5, -hh + 3, 2, 3);
+    ctx.fillStyle = '#DD9966';
+    ctx.fillRect(-hw + 3, -hh + 4, 1, 2);
+    ctx.fillRect(hw - 4, -hh + 4, 1, 2);
+
+    // Olhos azuis detalhados
+    // Sobrancelhas expressivas
+    ctx.fillStyle = '#4A1A00';
+    ctx.fillRect(-5, -hh + 2, 4, 1);
+    ctx.fillRect(1, -hh + 2, 4, 1);
+    // Olho esquerdo
+    ctx.fillStyle = '#001166';
+    ctx.fillRect(-5, -hh + 3, 4, 3);
+    ctx.fillStyle = '#1155CC';
+    ctx.fillRect(-4, -hh + 3, 3, 3);
+    ctx.fillStyle = '#3377EE';
+    ctx.fillRect(-4, -hh + 4, 2, 1);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(-3, -hh + 3, 1, 1);
+    // Olho direito
+    ctx.fillStyle = '#001166';
+    ctx.fillRect(1, -hh + 3, 4, 3);
+    ctx.fillStyle = '#1155CC';
+    ctx.fillRect(1, -hh + 3, 3, 3);
+    ctx.fillStyle = '#3377EE';
+    ctx.fillRect(1, -hh + 4, 2, 1);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(2, -hh + 3, 1, 1);
+
+    // Nariz
+    ctx.fillStyle = '#CC9966';
+    ctx.fillRect(-1, -hh + 5, 2, 1);
+
+    // Boca (sorriso determinado)
+    ctx.fillStyle = '#BB4422';
     ctx.fillRect(-3, -hh + 7, 6, 1);
+    ctx.fillStyle = '#DD6644';
+    ctx.fillRect(-2, -hh + 6, 4, 1);
 
     // Efeito de dano
     if (this.state === 'dead') {
-      ctx.globalAlpha = 0.6;
-      ctx.fillStyle = '#FF0000';
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = '#FF2200';
       ctx.fillRect(-hw, -hh, this.w, this.h);
       ctx.globalAlpha = 1;
     }
@@ -832,77 +992,227 @@ class NPC {
 
   drawVivi(x, y) {
     const t = this.animTimer;
-    const breathe = Math.sin(t * 0.06) * 1;
+    const breathe = Math.sin(t * 0.05) * 1;
+    const glow = 0.5 + Math.sin(t * 0.08) * 0.3;
+    const hairWave = Math.sin(t * 0.04) * 1.5;
 
-    // Pernas
-    ctx.fillStyle = '#0A1428';
-    ctx.fillRect(x + 3, y + this.h - 9, 5, 9);
-    ctx.fillRect(x + this.w - 8, y + this.h - 9, 5, 9);
-    // Botas com detalhe
-    ctx.fillStyle = '#001133';
-    ctx.fillRect(x + 2, y + this.h - 3, 7, 3);
-    ctx.fillRect(x + this.w - 9, y + this.h - 3, 7, 3);
-    ctx.fillStyle = '#0033AA';
-    ctx.fillRect(x + 2, y + this.h - 1, 7, 1);
-    ctx.fillRect(x + this.w - 9, y + this.h - 1, 7, 1);
-
-    // Bodysuit azul escuro com detalhes
-    ctx.fillStyle = '#0D1A33';
-    ctx.fillRect(x + 2, y + 8 + breathe, this.w - 4, this.h - 17);
-    // Linhas de circuito
-    ctx.fillStyle = '#0066AA';
-    ctx.fillRect(x + 4, y + 10 + breathe, 2, 7);
-    ctx.fillRect(x + this.w - 6, y + 10 + breathe, 2, 7);
-    ctx.fillRect(x + 6, y + 15 + breathe, this.w - 12, 1);
-    // Detalhe no peito
-    ctx.fillStyle = C.cyan;
-    ctx.globalAlpha = 0.7 + Math.sin(t * 0.1) * 0.3;
-    ctx.fillRect(x + 7, y + 11 + breathe, 4, 3);
+    // ── AURA MÁGICA (desenhada primeiro, atrás de tudo)
+    // Aura externa grande
+    ctx.globalAlpha = 0.06 + Math.sin(t * 0.05) * 0.03;
+    ctx.fillStyle = '#9900FF';
+    ctx.fillRect(x - 6, y - 4, this.w + 12, this.h + 8);
+    // Aura média
+    ctx.globalAlpha = 0.1 + Math.sin(t * 0.07) * 0.05;
+    ctx.fillStyle = '#CC44FF';
+    ctx.fillRect(x - 4, y - 2, this.w + 8, this.h + 4);
     ctx.globalAlpha = 1;
 
-    // Braços
-    ctx.fillStyle = '#0D1A33';
-    ctx.fillRect(x - 1, y + 9 + breathe, 4, 9);
-    ctx.fillRect(x + this.w - 3, y + 9 + breathe, 4, 9);
-    // Mãos
-    ctx.fillStyle = '#FFCC99';
-    ctx.fillRect(x - 1, y + 17 + breathe, 3, 3);
-    ctx.fillRect(x + this.w - 2, y + 17 + breathe, 3, 3);
+    // Partículas mágicas flutuando
+    for (let i = 0; i < 4; i++) {
+      const px2 = x + Math.sin(t * 0.06 + i * 1.5) * (this.w * 0.6) + this.w / 2;
+      const py2 = y + Math.cos(t * 0.07 + i * 1.2) * 8 + this.h / 2;
+      ctx.globalAlpha = 0.4 + Math.sin(t * 0.1 + i) * 0.3;
+      ctx.fillStyle = i % 2 === 0 ? '#CC88FF' : '#88CCFF';
+      ctx.fillRect(px2, py2, 2, 2);
+    }
+    ctx.globalAlpha = 1;
 
-    // Cabeça
+    // Sombra elíptica
+    ctx.fillStyle = 'rgba(80,0,120,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(x + this.w / 2, y + this.h + 1, this.w / 2 - 1, 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── PERNAS com botas de combate
+    // Perna esquerda
+    ctx.fillStyle = '#080E1F';
+    ctx.fillRect(x + 3, y + this.h - 12, 6, 12);
+    // Perna direita
+    ctx.fillRect(x + this.w - 9, y + this.h - 12, 6, 12);
+    // Detalhe lateral das pernas
+    ctx.fillStyle = '#1A2A55';
+    ctx.fillRect(x + 5, y + this.h - 11, 2, 9);
+    ctx.fillRect(x + this.w - 7, y + this.h - 11, 2, 9);
+    // Botas com detalhe luminoso
+    ctx.fillStyle = '#050A1A';
+    ctx.fillRect(x + 2, y + this.h - 4, 8, 4);
+    ctx.fillRect(x + this.w - 10, y + this.h - 4, 8, 4);
+    // Detalhe neon nas botas
+    ctx.globalAlpha = glow * 0.8;
+    ctx.fillStyle = '#4488FF';
+    ctx.fillRect(x + 2, y + this.h - 1, 8, 1);
+    ctx.fillRect(x + this.w - 10, y + this.h - 1, 8, 1);
+    ctx.globalAlpha = 1;
+
+    // ── BODYSUIT com circuitos detalhados
+    // Corpo principal
+    ctx.fillStyle = '#0A1228';
+    ctx.fillRect(x + 2, y + 8 + breathe, this.w - 4, this.h - 20);
+    // Reflexo lateral
+    ctx.fillStyle = '#151E3A';
+    ctx.fillRect(x + 3, y + 9 + breathe, 3, this.h - 22);
+    // Linhas de circuito verticais
+    ctx.fillStyle = '#003366';
+    ctx.fillRect(x + 4, y + 10 + breathe, 1, 9);
+    ctx.fillRect(x + this.w - 5, y + 10 + breathe, 1, 9);
+    // Linhas de circuito horizontais
+    ctx.fillStyle = '#004488';
+    ctx.fillRect(x + 4, y + 13 + breathe, this.w - 8, 1);
+    ctx.fillRect(x + 4, y + 17 + breathe, this.w - 8, 1);
+    // Nós dos circuitos (pontos brilhantes)
+    ctx.globalAlpha = glow;
+    ctx.fillStyle = '#0088CC';
+    ctx.fillRect(x + 4, y + 13 + breathe, 2, 2);
+    ctx.fillRect(x + this.w - 6, y + 13 + breathe, 2, 2);
+    ctx.fillRect(x + 4, y + 17 + breathe, 2, 2);
+    ctx.fillRect(x + this.w - 6, y + 17 + breathe, 2, 2);
+    ctx.globalAlpha = 1;
+    // Detalhe no peito (cristal de energia)
+    const cpx = x + this.w / 2 - 3;
+    const cpy = y + 10 + breathe;
+    ctx.fillStyle = '#001133';
+    ctx.fillRect(cpx, cpy, 6, 5);
+    ctx.globalAlpha = glow;
+    ctx.fillStyle = '#0099FF';
+    ctx.fillRect(cpx + 1, cpy + 1, 4, 3);
+    ctx.fillStyle = '#88DDFF';
+    ctx.fillRect(cpx + 2, cpy + 1, 2, 2);
+    ctx.globalAlpha = glow * 0.4;
+    ctx.fillStyle = '#00AAFF';
+    ctx.fillRect(cpx - 2, cpy - 1, 10, 7);
+    ctx.globalAlpha = 1;
+
+    // ── BRAÇOS com luvas
+    // Braço esquerdo
+    ctx.fillStyle = '#0A1228';
+    ctx.fillRect(x - 2, y + 9 + breathe, 5, 10);
+    ctx.fillStyle = '#151E3A';
+    ctx.fillRect(x - 1, y + 9 + breathe, 2, 9);
+    // Luva esquerda
+    ctx.fillStyle = '#050A1A';
+    ctx.fillRect(x - 2, y + 18 + breathe, 5, 4);
+    ctx.globalAlpha = glow * 0.6;
+    ctx.fillStyle = '#4488FF';
+    ctx.fillRect(x - 2, y + 21 + breathe, 5, 1);
+    ctx.globalAlpha = 1;
+    // Braço direito
+    ctx.fillStyle = '#0A1228';
+    ctx.fillRect(x + this.w - 3, y + 9 + breathe, 5, 10);
+    ctx.fillStyle = '#151E3A';
+    ctx.fillRect(x + this.w - 1, y + 9 + breathe, 2, 9);
+    // Luva direita
+    ctx.fillStyle = '#050A1A';
+    ctx.fillRect(x + this.w - 3, y + 18 + breathe, 5, 4);
+    ctx.globalAlpha = glow * 0.6;
+    ctx.fillStyle = '#4488FF';
+    ctx.fillRect(x + this.w - 3, y + 21 + breathe, 5, 1);
+    ctx.globalAlpha = 1;
+
+    // ── PESCOÇO
+    ctx.fillStyle = '#FFBB88';
+    ctx.fillRect(x + this.w / 2 - 2, y + 7, 4, 3);
+
+    // ── CABEÇA
+    // Sombra da cabeça
+    ctx.fillStyle = '#DD9966';
+    ctx.fillRect(x + 3, y + 1, this.w - 6, 8);
+    // Rosto
     ctx.fillStyle = '#FFCC99';
-    ctx.fillRect(x + 3, y, this.w - 6, 9);
-    // Cabelo roxo longo
-    ctx.fillStyle = '#220044';
-    ctx.fillRect(x + 3, y, this.w - 6, 3);
-    ctx.fillStyle = '#330066';
-    ctx.fillRect(x + 2, y + 3, 3, 6);
-    ctx.fillRect(x + this.w - 5, y + 3, 3, 6);
-    // Mechas caindo
+    ctx.fillRect(x + 4, y, this.w - 8, 8);
+    // Bochechas rosadas
+    ctx.fillStyle = '#FFAAAA';
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(x + 4, y + 5, 3, 2);
+    ctx.fillRect(x + this.w - 7, y + 5, 3, 2);
+    ctx.globalAlpha = 1;
+
+    // ── CABELO ROXO LONGO COM MOVIMENTO
+    // Base do cabelo (topo)
+    ctx.fillStyle = '#1A0033';
+    ctx.fillRect(x + 3, y - 1, this.w - 6, 5);
+    ctx.fillStyle = '#2D0055';
+    ctx.fillRect(x + 4, y, this.w - 8, 4);
+    // Reflexo no cabelo
+    ctx.fillStyle = '#5500AA';
+    ctx.fillRect(x + 5, y, 3, 3);
+
+    // Franja
+    ctx.fillStyle = '#2D0055';
+    ctx.fillRect(x + 4, y + 3, 3, 3);
+    ctx.fillRect(x + this.w - 7, y + 3, 3, 3);
     ctx.fillStyle = '#440088';
-    ctx.fillRect(x + 1, y + 5, 2, 12);
-    ctx.fillRect(x + this.w - 3, y + 5, 2, 12);
-    // Olhos roxos brilhantes
-    ctx.fillStyle = '#8833CC';
-    ctx.fillRect(x + 5, y + 4, 3, 2);
-    ctx.fillRect(x + this.w - 8, y + 4, 3, 2);
+    ctx.fillRect(x + 5, y + 3, 2, 2);
+    ctx.fillRect(x + this.w - 7, y + 3, 2, 2);
+
+    // Mechas longas caindo (com movimento de onda)
+    // Mecha esquerda
+    ctx.fillStyle = '#2D0055';
+    ctx.fillRect(x + 1, y + 4, 3, 8 + hairWave);
+    ctx.fillRect(x, y + 8, 3, 8 + hairWave * 0.7);
+    ctx.fillStyle = '#440088';
+    ctx.fillRect(x + 1, y + 5, 2, 6 + hairWave);
+    // Ponta da mecha esquerda com brilho
+    ctx.globalAlpha = glow * 0.5;
+    ctx.fillStyle = '#9933FF';
+    ctx.fillRect(x, y + 14 + hairWave, 3, 2);
+    ctx.globalAlpha = 1;
+
+    // Mecha direita
+    ctx.fillStyle = '#2D0055';
+    ctx.fillRect(x + this.w - 4, y + 4, 3, 8 - hairWave);
+    ctx.fillRect(x + this.w - 3, y + 8, 3, 8 - hairWave * 0.7);
+    ctx.fillStyle = '#440088';
+    ctx.fillRect(x + this.w - 3, y + 5, 2, 6 - hairWave);
+    // Ponta da mecha direita com brilho
+    ctx.globalAlpha = glow * 0.5;
+    ctx.fillStyle = '#9933FF';
+    ctx.fillRect(x + this.w - 3, y + 14 - hairWave, 3, 2);
+    ctx.globalAlpha = 1;
+
+    // Orelhas
+    ctx.fillStyle = '#FFBB88';
+    ctx.fillRect(x + 3, y + 3, 2, 3);
+    ctx.fillRect(x + this.w - 5, y + 3, 2, 3);
+
+    // ── OLHOS ROXOS EXPRESSIVOS
+    // Sobrancelhas finas
+    ctx.fillStyle = '#1A0033';
+    ctx.fillRect(x + 5, y + 2, 4, 1);
+    ctx.fillRect(x + this.w - 9, y + 2, 4, 1);
+    // Olho esquerdo
+    ctx.fillStyle = '#110022';
+    ctx.fillRect(x + 5, y + 3, 4, 3);
+    ctx.fillStyle = '#6600CC';
+    ctx.fillRect(x + 5, y + 3, 3, 3);
+    ctx.fillStyle = '#9933FF';
+    ctx.fillRect(x + 5, y + 4, 2, 1);
+    ctx.globalAlpha = glow;
     ctx.fillStyle = '#CC88FF';
-    ctx.fillRect(x + 5, y + 4, 1, 1);
-    ctx.fillRect(x + this.w - 8, y + 4, 1, 1);
-    // Nariz
+    ctx.fillRect(x + 5, y + 3, 1, 1);
+    ctx.globalAlpha = 1;
+    // Olho direito
+    ctx.fillStyle = '#110022';
+    ctx.fillRect(x + this.w - 9, y + 3, 4, 3);
+    ctx.fillStyle = '#6600CC';
+    ctx.fillRect(x + this.w - 8, y + 3, 3, 3);
+    ctx.fillStyle = '#9933FF';
+    ctx.fillRect(x + this.w - 8, y + 4, 2, 1);
+    ctx.globalAlpha = glow;
+    ctx.fillStyle = '#CC88FF';
+    ctx.fillRect(x + this.w - 9, y + 3, 1, 1);
+    ctx.globalAlpha = 1;
+
+    // Nariz delicado
     ctx.fillStyle = '#CC9966';
-    ctx.fillRect(x + 8, y + 6, 1, 1);
-    // Sorriso
+    ctx.fillRect(x + this.w / 2 - 1, y + 5, 2, 1);
+
+    // Boca (sorriso sereno)
     ctx.fillStyle = '#CC5533';
     ctx.fillRect(x + 6, y + 7, 6, 1);
-    ctx.fillRect(x + 5, y + 6, 2, 1);
-    ctx.fillRect(x + 11, y + 6, 2, 1);
-
-    // Aura mágica
-    ctx.globalAlpha = 0.1 + Math.sin(t * 0.07) * 0.05;
-    ctx.fillStyle = C.purple;
-    ctx.fillRect(x - 3, y - 2, this.w + 6, this.h + 4);
-    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#EE7755';
+    ctx.fillRect(x + 7, y + 6, 4, 1);
+    ctx.fillStyle = '#FFAAAA';
+    ctx.fillRect(x + 8, y + 6, 2, 1);
   }
 
   drawBotop(x, y) {
