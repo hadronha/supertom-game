@@ -9,12 +9,12 @@
 const GAME_W = 480;
 const GAME_H = 270;
 const TILE = 32;
-const GRAVITY = 0.42;
-const JUMP_FORCE = -10.2;
-const MOVE_SPEED = 3.5;
-const MAX_FALL = 13;
-const ATTACK_RANGE = 28;
-const ATTACK_COOLDOWN = 18;
+const GRAVITY = 0.35;
+const JUMP_FORCE = -9.8;
+const MOVE_SPEED = 3.8;
+const MAX_FALL = 12;
+const ATTACK_RANGE = 32;
+const ATTACK_COOLDOWN = 14;
 
 // ─── PALETA 16-BIT EXPANDIDA ──────────────────────────────────
 const C = {
@@ -518,8 +518,8 @@ class Player {
     let accel = 0;
     if (isLeft())  { accel = -MOVE_SPEED; this.dir = -1; }
     if (isRight()) { accel =  MOVE_SPEED; this.dir =  1; }
-    this.vx = lerp(this.vx, accel, this.onGround ? 0.25 : 0.15);
-    if (Math.abs(this.vx) < 0.1) this.vx = 0;
+    this.vx = lerp(this.vx, accel, this.onGround ? 0.38 : 0.25);
+    if (Math.abs(this.vx) < 0.08) this.vx = 0;
 
     // Run dust particles
     if (this.onGround && Math.abs(this.vx) > 1.5) {
@@ -530,9 +530,9 @@ class Player {
     }
 
     // ── COYOTE TIME & JUMP BUFFER
-    if (this.onGround) { this.coyoteTime = 6; }
+    if (this.onGround) { this.coyoteTime = 8; }
     else { this.coyoteTime--; }
-    if (isJump()) { this.jumpBuffer = 6; }
+    if (isJump()) { this.jumpBuffer = 8; }
     else { this.jumpBuffer--; }
 
     // ── JUMP
@@ -542,6 +542,11 @@ class Player {
       this.jumpBuffer = 0;
       sfxJump();
       spawnParticles(this.x + this.w/2, this.y + this.h, C.cyan, 5, 2, 'circle', 12, 2);
+    }
+
+    // ── VARIABLE JUMP HEIGHT (soltar = pulo menor)
+    if (!isJump() && this.vy < -2) {
+      this.vy *= 0.65;
     }
 
     // ── GRAVITY
@@ -580,13 +585,13 @@ class Player {
     }
 
     // ── FALL DEATH
-    if (this.y > 600) {
+    if (this.y > 800) {
       this.hp--;
       if (this.hp > 0) {
         this.x = game.checkpointX || game.currentLevel.playerStart.x;
         this.y = game.checkpointY || game.currentLevel.playerStart.y;
         this.vy = 0; this.vx = 0;
-        this.invincible = 90;
+        this.invincible = 60;
         cameraShake(4, 8);
       }
     }
@@ -596,9 +601,9 @@ class Player {
       if (e.dead || this.invincible > 0) continue;
       if (rectOverlap(this, { x: e.x, y: e.y, w: e.w, h: e.h })) {
         this.hp--;
-        this.invincible = 90;
-        this.vx = (this.x < e.x ? -1 : 1) * 5;
-        this.vy = -6;
+        this.invincible = 60;
+        this.vx = (this.x < e.x ? -1 : 1) * 4;
+        this.vy = -5;
         sfxHit();
         cameraShake(5, 10);
         spawnParticles(this.x + this.w/2, this.y + this.h/2, C.red, 12, 4, 'spark', 20, 2);
@@ -639,7 +644,7 @@ class Player {
 
     // ── STATE MACHINE (16-bit animation states)
     if (this.attacking) { this.state = 'attack'; }
-    else if (this.invincible > 0 && this.invincible > 80) { this.state = 'hurt'; }
+    else if (this.invincible > 0 && this.invincible > 50) { this.state = 'hurt'; }
     else if (!this.onGround && this.vy < 0) { this.state = 'jump'; }
     else if (!this.onGround && this.vy > 0) { this.state = 'fall'; }
     else if (Math.abs(this.vx) > 0.5) { this.state = 'run'; }
@@ -973,13 +978,13 @@ class Enemy {
     this.hp = type === 'heavy' ? 3 : 2;
     this.maxHp = this.hp;
     this.startX = x; this.patrolW = patrolW || 80;
-    this.dir = 1; this.speed = type === 'heavy' ? 0.6 : 1.2;
+    this.dir = 1; this.speed = type === 'heavy' ? 0.5 : 0.9;
     this.dead = false; this.deathTimer = 0;
     this.hitFlash = 0;
     this.animFrame = 0; this.animTimer = 0;
     this.alertState = 'patrol'; // patrol, alert, chase
     this.alertTimer = 0;
-    this.sightRange = type === 'heavy' ? 100 : 120;
+    this.sightRange = type === 'heavy' ? 80 : 90;
     this.floatY = 0;
   }
 
@@ -1019,7 +1024,7 @@ class Enemy {
       }
     } else if (this.alertState === 'chase') {
       // Chase player
-      const chaseSpeed = this.speed * 1.5;
+      const chaseSpeed = this.speed * 1.2;
       if (dx > 5) { this.x += chaseSpeed; this.dir = 1; }
       else if (dx < -5) { this.x -= chaseSpeed; this.dir = -1; }
       // Return to patrol if player is far
@@ -1198,7 +1203,7 @@ class Boss {
   constructor(x, y) {
     this.x = x; this.y = y;
     this.w = 40; this.h = 48;
-    this.hp = 15; this.maxHp = 15;
+    this.hp = 10; this.maxHp = 10;
     this.dir = -1; this.speed = 1;
     this.dead = false; this.deathTimer = 0;
     this.hitFlash = 0;
@@ -1249,7 +1254,7 @@ class Boss {
 
     // Attack patterns
     this.attackTimer++;
-    const attackInterval = this.phase === 1 ? 90 : this.phase === 2 ? 60 : 40;
+    const attackInterval = this.phase === 1 ? 120 : this.phase === 2 ? 80 : 55;
     if (this.attackTimer >= attackInterval) {
       this.attackTimer = 0;
       // Spawn projectile
@@ -1274,9 +1279,9 @@ class Boss {
         player
       )) {
         player.hp--;
-        player.invincible = 90;
-        player.vx = (player.x < p.x ? -1 : 1) * 5;
-        player.vy = -5;
+        player.invincible = 60;
+        player.vx = (player.x < p.x ? -1 : 1) * 4;
+        player.vy = -4;
         p.life = 0;
         sfxHit();
         cameraShake(4, 8);
@@ -2510,33 +2515,33 @@ const LEVELS = [
     width: 2400, height: 300,
     playerStart: { x: 30, y: 200 },
     platforms: [
-      // Chão principal
-      { x: 0, y: 260, w: 300, h: 40 },
-      { x: 350, y: 260, w: 200, h: 40 },
-      { x: 600, y: 260, w: 250, h: 40 },
-      { x: 900, y: 260, w: 300, h: 40 },
-      { x: 1250, y: 260, w: 200, h: 40 },
-      { x: 1500, y: 260, w: 300, h: 40 },
-      { x: 1850, y: 260, w: 300, h: 40 },
-      { x: 2200, y: 260, w: 200, h: 40 },
-      // Plataformas elevadas
-      { x: 120, y: 210, w: 60, h: 10 },
-      { x: 220, y: 180, w: 50, h: 10 },
-      { x: 380, y: 200, w: 70, h: 10 },
-      { x: 500, y: 170, w: 60, h: 10 },
-      { x: 650, y: 200, w: 80, h: 10 },
-      { x: 780, y: 170, w: 60, h: 10 },
-      { x: 850, y: 140, w: 50, h: 10 },
-      { x: 950, y: 190, w: 70, h: 10 },
-      { x: 1050, y: 160, w: 60, h: 10 },
-      { x: 1150, y: 200, w: 80, h: 10 },
-      { x: 1300, y: 180, w: 60, h: 10 },
-      { x: 1400, y: 150, w: 50, h: 10 },
-      { x: 1550, y: 200, w: 70, h: 10 },
-      { x: 1700, y: 170, w: 60, h: 10 },
-      { x: 1800, y: 140, w: 50, h: 10 },
-      { x: 1950, y: 190, w: 70, h: 10 },
-      { x: 2100, y: 160, w: 60, h: 10 },
+      // Chão principal (gaps menores, plataformas mais largas)
+      { x: 0, y: 260, w: 320, h: 40 },
+      { x: 350, y: 260, w: 230, h: 40 },
+      { x: 610, y: 260, w: 270, h: 40 },
+      { x: 910, y: 260, w: 320, h: 40 },
+      { x: 1260, y: 260, w: 220, h: 40 },
+      { x: 1510, y: 260, w: 320, h: 40 },
+      { x: 1860, y: 260, w: 320, h: 40 },
+      { x: 2210, y: 260, w: 200, h: 40 },
+      // Plataformas elevadas (mais largas para facilitar pouso)
+      { x: 110, y: 210, w: 70, h: 10 },
+      { x: 210, y: 180, w: 65, h: 10 },
+      { x: 370, y: 200, w: 80, h: 10 },
+      { x: 490, y: 170, w: 70, h: 10 },
+      { x: 640, y: 200, w: 90, h: 10 },
+      { x: 770, y: 170, w: 70, h: 10 },
+      { x: 840, y: 140, w: 65, h: 10 },
+      { x: 940, y: 190, w: 80, h: 10 },
+      { x: 1040, y: 160, w: 70, h: 10 },
+      { x: 1140, y: 200, w: 90, h: 10 },
+      { x: 1290, y: 180, w: 70, h: 10 },
+      { x: 1390, y: 150, w: 65, h: 10 },
+      { x: 1540, y: 200, w: 80, h: 10 },
+      { x: 1690, y: 170, w: 70, h: 10 },
+      { x: 1790, y: 140, w: 65, h: 10 },
+      { x: 1940, y: 190, w: 80, h: 10 },
+      { x: 2090, y: 160, w: 70, h: 10 },
     ],
     enemies: [
       { x: 400, y: 240, type: 'drone', patrol: 80 },
@@ -2572,36 +2577,36 @@ const LEVELS = [
     width: 2600, height: 350,
     playerStart: { x: 30, y: 250 },
     platforms: [
-      { x: 0, y: 310, w: 250, h: 40 },
-      { x: 300, y: 310, w: 200, h: 40 },
-      { x: 550, y: 310, w: 150, h: 40 },
-      { x: 750, y: 310, w: 250, h: 40 },
-      { x: 1050, y: 310, w: 200, h: 40 },
-      { x: 1300, y: 310, w: 300, h: 40 },
-      { x: 1650, y: 310, w: 200, h: 40 },
-      { x: 1900, y: 310, w: 250, h: 40 },
-      { x: 2200, y: 310, w: 200, h: 40 },
-      // Plataformas
-      { x: 100, y: 260, w: 50, h: 10 },
-      { x: 200, y: 230, w: 60, h: 10 },
-      { x: 330, y: 250, w: 50, h: 10 },
-      { x: 430, y: 220, w: 60, h: 10 },
-      { x: 560, y: 260, w: 70, h: 10 },
-      { x: 680, y: 230, w: 50, h: 10 },
-      { x: 780, y: 250, w: 60, h: 10 },
-      { x: 880, y: 200, w: 50, h: 10 },
-      { x: 980, y: 170, w: 60, h: 10 },
-      { x: 1080, y: 240, w: 70, h: 10 },
-      { x: 1200, y: 210, w: 50, h: 10 },
-      { x: 1350, y: 250, w: 60, h: 10 },
-      { x: 1450, y: 220, w: 50, h: 10 },
-      { x: 1550, y: 190, w: 60, h: 10 },
-      { x: 1700, y: 250, w: 70, h: 10 },
-      { x: 1850, y: 220, w: 50, h: 10 },
-      { x: 1950, y: 190, w: 60, h: 10 },
-      { x: 2050, y: 160, w: 50, h: 10 },
-      { x: 2150, y: 240, w: 70, h: 10 },
-      { x: 2300, y: 200, w: 60, h: 10 },
+      { x: 0, y: 310, w: 270, h: 40 },
+      { x: 300, y: 310, w: 220, h: 40 },
+      { x: 550, y: 310, w: 180, h: 40 },
+      { x: 760, y: 310, w: 270, h: 40 },
+      { x: 1060, y: 310, w: 220, h: 40 },
+      { x: 1310, y: 310, w: 320, h: 40 },
+      { x: 1660, y: 310, w: 220, h: 40 },
+      { x: 1910, y: 310, w: 270, h: 40 },
+      { x: 2210, y: 310, w: 200, h: 40 },
+      // Plataformas (mais largas)
+      { x: 90, y: 260, w: 65, h: 10 },
+      { x: 190, y: 230, w: 70, h: 10 },
+      { x: 320, y: 250, w: 65, h: 10 },
+      { x: 420, y: 220, w: 70, h: 10 },
+      { x: 555, y: 260, w: 80, h: 10 },
+      { x: 670, y: 230, w: 65, h: 10 },
+      { x: 775, y: 250, w: 70, h: 10 },
+      { x: 870, y: 200, w: 65, h: 10 },
+      { x: 970, y: 170, w: 70, h: 10 },
+      { x: 1070, y: 240, w: 80, h: 10 },
+      { x: 1190, y: 210, w: 65, h: 10 },
+      { x: 1340, y: 250, w: 70, h: 10 },
+      { x: 1440, y: 220, w: 65, h: 10 },
+      { x: 1540, y: 190, w: 70, h: 10 },
+      { x: 1690, y: 250, w: 80, h: 10 },
+      { x: 1840, y: 220, w: 65, h: 10 },
+      { x: 1940, y: 190, w: 70, h: 10 },
+      { x: 2040, y: 160, w: 65, h: 10 },
+      { x: 2140, y: 240, w: 80, h: 10 },
+      { x: 2290, y: 200, w: 70, h: 10 },
     ],
     enemies: [
       { x: 350, y: 290, type: 'drone', patrol: 70 },
@@ -2638,33 +2643,33 @@ const LEVELS = [
     width: 2800, height: 350,
     playerStart: { x: 30, y: 250 },
     platforms: [
-      { x: 0, y: 310, w: 300, h: 40 },
-      { x: 350, y: 310, w: 200, h: 40 },
-      { x: 600, y: 310, w: 250, h: 40 },
-      { x: 900, y: 310, w: 300, h: 40 },
-      { x: 1250, y: 310, w: 200, h: 40 },
-      { x: 1500, y: 310, w: 300, h: 40 },
-      { x: 1850, y: 310, w: 200, h: 40 },
-      { x: 2100, y: 310, w: 300, h: 40 },
-      { x: 2450, y: 310, w: 350, h: 40 },
-      // Plataformas
-      { x: 120, y: 260, w: 60, h: 10 },
-      { x: 250, y: 230, w: 50, h: 10 },
-      { x: 380, y: 250, w: 60, h: 10 },
-      { x: 500, y: 220, w: 50, h: 10 },
-      { x: 650, y: 250, w: 70, h: 10 },
-      { x: 800, y: 220, w: 50, h: 10 },
-      { x: 950, y: 250, w: 60, h: 10 },
-      { x: 1050, y: 200, w: 50, h: 10 },
-      { x: 1150, y: 170, w: 60, h: 10 },
-      { x: 1300, y: 250, w: 70, h: 10 },
-      { x: 1450, y: 220, w: 50, h: 10 },
-      { x: 1550, y: 250, w: 60, h: 10 },
-      { x: 1700, y: 200, w: 50, h: 10 },
-      { x: 1850, y: 250, w: 70, h: 10 },
-      { x: 2000, y: 220, w: 50, h: 10 },
-      { x: 2150, y: 250, w: 60, h: 10 },
-      { x: 2300, y: 200, w: 50, h: 10 },
+      { x: 0, y: 310, w: 320, h: 40 },
+      { x: 350, y: 310, w: 230, h: 40 },
+      { x: 610, y: 310, w: 270, h: 40 },
+      { x: 910, y: 310, w: 320, h: 40 },
+      { x: 1260, y: 310, w: 220, h: 40 },
+      { x: 1510, y: 310, w: 320, h: 40 },
+      { x: 1860, y: 310, w: 220, h: 40 },
+      { x: 2110, y: 310, w: 320, h: 40 },
+      { x: 2460, y: 310, w: 350, h: 40 },
+      // Plataformas (mais largas)
+      { x: 110, y: 260, w: 70, h: 10 },
+      { x: 240, y: 230, w: 65, h: 10 },
+      { x: 370, y: 250, w: 70, h: 10 },
+      { x: 490, y: 220, w: 65, h: 10 },
+      { x: 640, y: 250, w: 80, h: 10 },
+      { x: 790, y: 220, w: 65, h: 10 },
+      { x: 940, y: 250, w: 70, h: 10 },
+      { x: 1040, y: 200, w: 65, h: 10 },
+      { x: 1140, y: 170, w: 70, h: 10 },
+      { x: 1290, y: 250, w: 80, h: 10 },
+      { x: 1440, y: 220, w: 65, h: 10 },
+      { x: 1540, y: 250, w: 70, h: 10 },
+      { x: 1690, y: 200, w: 65, h: 10 },
+      { x: 1840, y: 250, w: 80, h: 10 },
+      { x: 1990, y: 220, w: 65, h: 10 },
+      { x: 2140, y: 250, w: 70, h: 10 },
+      { x: 2290, y: 200, w: 65, h: 10 },
     ],
     enemies: [
       { x: 400, y: 290, type: 'drone', patrol: 80 },
